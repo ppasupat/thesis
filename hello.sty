@@ -1,0 +1,109 @@
+\ProvidesPackage{hello}
+
+\usepackage{amssymb}   % AMS math symbols
+\usepackage{amsmath}   % AMS math
+\usepackage{amsfonts}  % AMS fonts
+\usepackage{amsthm}    % AMS theorem
+\usepackage{latexsym}  % Other math symbols
+
+\usepackage{graphicx}  % Graphics
+\usepackage{color}     % Colored text
+
+\usepackage{verbatim}  % \begin{verbatim}
+\usepackage{listings}  % \begin{lstlisting}
+\usepackage{enumitem}  % \begin{enumerate}[...]
+\usepackage{algorithm} % \begin{algorithm}
+\usepackage[noend]{algpseudocode} % \begin{algorithmic}
+
+\usepackage{url}       % \url{..} command
+\usepackage{xspace}    % Reclaim the eaten space in macros
+\usepackage{etoolbox}  % Logical macros (used in \pts)
+
+\usepackage{array}     % Improve tables
+\usepackage{multirow}  % Columns spanning multiple rows
+\usepackage{multicol}  % Rows spanning multiple columns
+\usepackage{hhline}    % Double border for table
+\usepackage{dcolumn}   % Decimal-align table columns
+
+\usepackage{tikz}      % Drawing
+\usepackage{pgfplots}  % Plot
+\pgfplotsset{compat=1.14}
+
+% Comment out chunks.
+\newcommand{\punt}[1]{}
+
+% Red TODO
+\newcommand\TODO[1][]{{\color{red} [TODO: #1]}}
+
+%% Math style shorthands
+
+\newcommand{\Mb}    {\mathbf}
+\newcommand{\Mr}    {\mathrm}
+\newcommand{\Mc}    {\mathcal}
+\newcommand{\Mt}    {\mathtt}
+\newcommand{\Md}    {\mathbb}
+\newcommand{\Ms}    {\mathsf}
+\newcommand{\Bs}    {\boldsymbol}
+
+%% Math Stuff, Symbols
+
+% Number sets.
+\newcommand{\RR}	{\mathbb{R}}
+\newcommand{\ZZ}	{\mathbb{Z}}
+\newcommand{\NN}	{\mathbb{N}}
+\newcommand{\QQ}	{\mathbb{Q}}
+\newcommand{\CC}	{\mathbb{C}}
+\newcommand{\FF}	{\mathbb{F}}
+\newcommand{\II}	{\mathbb{I}}
+
+% Useful shorthands.
+\newcommand{\norm}[1]   {\left\| #1\right\|}
+\newcommand{\set}[1]    {\left\{ #1 \right\}}
+\newcommand{\abs}[1]    {\left| #1\right|}
+\newcommand{\card}[1]   {\left| #1\right|}
+\newcommand{\floor}[1]  {\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]   {\left\lceil #1 \right\rceil}
+\newcommand{\ang}[1]    {\left\langle #1 \right\rangle}
+\newcommand{\moom}[1]   {\left\langle #1 \right\rangle}
+\newcommand{\crab}[1]	{\left[ #1 \right]}
+\newcommand{\crow}[1]	{\left\{ #1 \right\}}
+\newcommand{\nail}[1]	{\left( #1 \right)}
+\newcommand{\lt}[1]	    {\left#1}
+\newcommand{\rt}[1]  	{\right#1}
+
+\DeclareMathOperator{\probability}{\mathbb{P}}
+\DeclareMathOperator{\expectation}{\mathbb{E}}
+\DeclareMathOperator{\variance}{Var}
+\DeclareMathOperator{\covariance}{Cov}
+\newcommand{\prob}[2][]  {\probability_{#1}\left[ #2 \right]}
+\newcommand{\probb}[2][] {\probability_{#1}[ #2 ]}
+\newcommand{\ex}[2][]    {\expectation_{#1}\left[ #2 \right]}
+\newcommand{\exx}[2][]   {\expectation_{#1}[ #2 ]}
+\newcommand{\var}[2][]   {\variance_{#1}\left[ #2 \right]}
+\newcommand{\varr}[2][]  {\variance_{#1}[ #2 ]}
+\newcommand{\cov}[2][]   {\covariance_{#1}\left[ #2 \right]}
+\newcommand{\covv}[2][]  {\covariance_{#1}[ #2 ]}
+\newcommand{\midd}       {\;\middle|\;}
+
+\newcommand{\matx}[2][\crab]{#1{\,\begin{matrix}#2\end{matrix}\,}}
+\newcommand{\Adj}           {\mathop{\rm Adj}\nolimits}
+\newcommand{\tp}            {^\top}
+
+\renewcommand{\cases}[1]    {\left\{ \begin{array}{ll} #1 \end{array} \right.}
+\newcommand{\cif}[1]        {\mbox{if $#1$}}
+\newcommand{\cwhen}[1]      {\mbox{when $#1$}}
+\newcommand{\cotherw}       {\mbox{otherwise}}
+
+\newcommand{\imod}[1]       {\!\pmod{#1}}
+\newcommand{\baa}           {\overline}
+
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\rank}{rank}
+
+\renewcommand\Re{\operatorname{Re}}
+\renewcommand\Im{\operatorname{Im}}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
