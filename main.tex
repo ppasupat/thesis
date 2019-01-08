@@ -2,7 +2,6 @@
 \usepackage{suthesis-2e}
 \usepackage{hello}
 \dept{Computer Science}
-%\onlinetrue
 
 \begin{document}
 \title{Natural Language Interface for Web Interaction via Compositional Generation}
@@ -12,10 +11,16 @@
 \secondreader{Dan Jurafsky}
  
 \beforepreface
-\input{preface.tex}
+\input preface/preface.tex
+\input preface/acknowledgments.tex
 \afterpreface
 
-\input{intro.tex}
+\hypersetup{colorlinks,linkcolor={red!40!black}}
+
+\chapter{Introduction}\label{chp:intro}
+\input intro/motivation.tex
+
+\ref{chp:intro}
 
 \appendix
 

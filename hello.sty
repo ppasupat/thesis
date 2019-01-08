@@ -8,6 +8,7 @@
 
 \usepackage{graphicx}  % Graphics
 \usepackage{color}     % Colored text
+\usepackage{xcolor}    % Custom colors
 
 \usepackage{verbatim}  % \begin{verbatim}
 \usepackage{listings}  % \begin{lstlisting}
@@ -28,6 +29,14 @@
 \usepackage{tikz}      % Drawing
 \usepackage{pgfplots}  % Plot
 
+\usepackage[hidelinks]{hyperref}  % Hyperlinks
+\hypersetup{
+  colorlinks,
+  linkcolor=.,
+  citecolor={blue},
+  urlcolor={blue}
+}
+
 % Fonts
 \usepackage{mathptmx}
 
@@ -35,7 +44,7 @@
 \newcommand{\punt}[1]{}
 
 % Red TODO
-\newcommand\TODO[1][]{{\color{red} [TODO: #1]}}
+\newcommand\todo[1]{{\color{red} [TODO: #1]}}
 
 %% Math style shorthands
 
