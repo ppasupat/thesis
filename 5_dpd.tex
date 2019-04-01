@@ -1,0 +1,90 @@
+\chapter{Enumerating correct logical forms}\label{chp:dpd}
+
+In the previous chapter,
+we framed the task of answering a question $x$ on a table $w$
+as a semantic parsing task:
+generate a set $Z_x$ of candidate logical forms,
+and then output $z \in Z_x$ with the highest score.
+The goal is to predict a \emph{consistent} logical form;
+i.e., a logical form $z$ whose denotation
+matches the right answer $y$.
+
+During training,
+the parser spends its time searching for logical forms
+by constructing them with deduction rules.
+With the increased domain size (breadth)
+and question complexity (depth),
+it is difficult to search over the space of logical forms
+for two reasons:
+\begin{enumerate}
+\item
+\textbf{Exploding search space.}
+the number of possible logical forms grows exponentially with size.
+In the previous chapter,
+we use various techniques such as
+deduction rule design,
+pruning strategies,
+and beam search to control the search space.
+However, such techniques can prune away consistent
+logical forms, which could slow down training.
+
+\item
+\textbf{Spurious logical forms.}
+Spurious logical forms are the ones that execute
+to the right answer for a wrong reason.
+For instance, the logical forms $z_1$, $s_2$, and $z_3$
+in Figure~\ref{sec:running-spurious}
+are \emph{semantically correct} as they follow what
+the question $x$ asks;
+however, $z_4$ and $z_5$ are \emph{spurious}:
+they execute to the right answer \T{Thailand}
+but do not reflect what the question $x$ asks.
+While increasing the search space
+helps with coverage and generalization,
+many spurious logical forms get generated.
+Spurious logical forms provide deceptive signals during training.
+For example, questions with the phrasing \nl{X or Y}
+tend to have a lot of spurious logical forms,
+and they model may not learn the correct construct $X \sqcup Y$
+if it keeps updating toward spurious logical forms.
+\end{enumerate}
+
+In this chapter,
+we address the challenges above
+with a new viewpoint:
+instead of running expensive search at training time
+to find consistent logical forms
+(and hoping that most of them are not spurious),
+we factor out the search process as a preprocessing step.
+In other words,
+for each example $(x, w, y)$ in the training data,
+we enumerate a set $\zsx$ semantically correct logical forms
+and augment it to the training example.
+The parser can then use $\zsx$
+as a cleaner training signal
+to train its model.
+
+Our approach for computing $\zsx$ consists of two steps:
+\begin{enumerate}
+\item 
+\end{enumerate}
+
+\section{Dynamic programming on denotations}
+\subsection{Motivation}
+Talk about beam search.
+Talk about the search space.
+
+\subsection{Algorithm}
+\subsection{Experiments}
+
+\section{Pruning spurious logical forms}
+\subsection{Motivation}
+Talk about test cases.
+Talk about "denotations" in the linguistic land.
+
+\subsection{Approach}
+
+\subsection{Experiments}
+
+\section{Using the generated logical forms}
+\section{Discussion}

@@ -5,10 +5,10 @@
 \usepackage{amsfonts}  % AMS fonts
 \usepackage{amsthm}    % AMS theorem
 \usepackage{latexsym}  % Other math symbols
+\usepackage{stmaryrd}  % Theoretical CS symbols
 
 \usepackage{graphicx}  % Graphics
 \usepackage{color}     % Colored text
-\usepackage{xcolor}    % Custom colors
 
 \usepackage{verbatim}  % \begin{verbatim}
 \usepackage{listings}  % \begin{lstlisting}
@@ -19,6 +19,7 @@
 \usepackage{url}       % \url{..} command
 \usepackage{xspace}    % Reclaim the eaten space in macros
 \usepackage{etoolbox}  % Logical macros (used in \pts)
+\usepackage{hyperref}  % Hyperlinks
 
 \usepackage{array}     % Improve tables
 \usepackage{multirow}  % Columns spanning multiple rows
@@ -29,34 +30,22 @@
 \usepackage{tikz}      % Drawing
 \usepackage{pgfplots}  % Plot
 
-\usepackage[hidelinks]{hyperref}  % Hyperlinks
-\hypersetup{
-  colorlinks,
-  linkcolor=.,
-  citecolor={blue},
-  urlcolor={blue}
-}
-
-% Fonts
-\usepackage{mathptmx}
+% Font = Times
+\renewcommand{\rmdefault}{ptm}
 
 % Comment out chunks.
 \newcommand{\punt}[1]{}
 
-% Red TODO
-\newcommand\todo[1]{{\color{red} [TODO: #1]}}
-
 %% Math style shorthands
 
-\newcommand{\T}     {\mathtt}
-\newcommand{\B}     {\mathbf}
+\newcommand{\Mb}    {\mathbf}
 \newcommand{\Mr}    {\mathrm}
 \newcommand{\Mc}    {\mathcal}
+\newcommand{\Mt}    {\mathtt}
 \newcommand{\Md}    {\mathbb}
 \newcommand{\Ms}    {\mathsf}
 \newcommand{\Bs}    {\boldsymbol}
-
-%% Math Stuff, Symbols
+\newcommand{\Sc}    {\textsc}
 
 % Number sets.
 \newcommand{\RR}	{\mathbb{R}}
