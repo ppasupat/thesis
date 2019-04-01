@@ -5,6 +5,7 @@
 \usepackage{amsfonts}  % AMS fonts
 \usepackage{amsthm}    % AMS theorem
 \usepackage{latexsym}  % Other math symbols
+\usepackage{stmaryrd}  % Theoretical CS symbols
 
 \usepackage{graphicx}  % Graphics
 \usepackage{color}     % Colored text
@@ -18,6 +19,7 @@
 \usepackage{url}       % \url{..} command
 \usepackage{xspace}    % Reclaim the eaten space in macros
 \usepackage{etoolbox}  % Logical macros (used in \pts)
+\usepackage{hyperref}  % Hyperlinks
 
 \usepackage{array}     % Improve tables
 \usepackage{multirow}  % Columns spanning multiple rows
@@ -28,11 +30,11 @@
 \usepackage{tikz}      % Drawing
 \usepackage{pgfplots}  % Plot
 
+% Font = Times
+\renewcommand{\rmdefault}{ptm}
+
 % Comment out chunks.
 \newcommand{\punt}[1]{}
-
-% Red TODO
-\newcommand\TODO[1][]{{\color{red} [TODO: #1]}}
 
 %% Math style shorthands
 
@@ -43,8 +45,7 @@
 \newcommand{\Md}    {\mathbb}
 \newcommand{\Ms}    {\mathsf}
 \newcommand{\Bs}    {\boldsymbol}
-
-%% Math Stuff, Symbols
+\newcommand{\Sc}    {\textsc}
 
 % Number sets.
 \newcommand{\RR}	{\mathbb{R}}
