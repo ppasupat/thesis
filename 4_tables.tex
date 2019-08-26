@@ -1,0 +1,925 @@
+The previous chapter considers a task on open-domain semi-structured
+web pages (high \Breadth) that only requires a shallow
+understanding of the input natural language query (low \Depth).
+As the examples at the end of the previous chapter
+show, compositional understanding of the query
+and multi-step reasoning
+are important for handling 
+even seemingly simple questions.
+%more interesting questions.
+
+To simultaneously increase the scope of the knowledge source
+(high \Breadth) and the complexity of the questions (high \Depth),
+we consider a new task of answering complex questions
+based on a given semi-structured web table.
+As an illustration,
+Figure~\ref{fig:wtq-setting} shows several
+question-answer pairs and the associated table
+from the \emph{Summer Olympic Games} article on Wikipedia.\footnote{The table was retrieved in 2015
+and was heavily simplified for illustrative purposes.}
+The questions have a wide range of complexity
+and require various types of reasoning such as
+comparison ($x_2$), superlatives ($x_3$), 
+aggregation ($x_4$), and arithmetic ($x_5$).
+Meanwhile, the table contains an arbitrary schema
+depending on the whim of the article's editors,
+so a system for solving the task needs to generalize
+to potentially unseen data schema.
+
+This chapter discusses the nature of the task
+and compares it with related tasks and datasets.
+Section~\ref{sec:wtq-task} formalizes the task,
+while Section~\ref{sec:wtq-dataset} explains how we
+collect a dataset, \wtq, with open-domain web tables
+and complex questions.
+Finally, in Section~\ref{sec:wtq-analysis},
+we analyze the \Breadth and \Depth of the dataset
+with respect to other related datasets.
+
+\section{Task description}\label{sec:wtq-task}
+
+In our task,
+the system is given a context table $w$ (``world'')
+and a question $x$ about the table.
+The system should
+output a list $y$ of values
+that answers the question according to the table.
+The task does not assume that the table follows
+any particular format,
+and the output values can be arbitrary strings.
+Figure~\ref{fig:wtq-setting} shows an example
+of a table $w$, a few question $x_i$, and their answers $y_i$.
+
+At training time, the system has access to training data
+$\{(x\i, w\i, y\i)\}_{i=1}^N$ of questions, tables, and answers.
+In particular, the training data does not contain
+\emph{how} the answers were derived from the questions.
+To test that the system generalizes to unseen table schemata,
+we ensure that the tables in training and test sets
+do not overlap.
+
+\begin{figure}[t]
+\centering
+\input{figures/wtq/percyfigure.tex}
+\caption{Our task is to answer a highly compositional question from an HTML table.
+Each example in the training data contains a question $x$,
+a table $w$,
+and an answer $y$.}
+\label{fig:wtq-setting}
+\end{figure}
+
+%\todo{Talk more about how the questions are complex}
+
+\section{The \wtq dataset}\label{sec:wtq-dataset}
+
+As a benchmark for the task,
+we created a new dataset, \wtq, of question-answer pairs
+on tables from Wikipedia.
+
+The data collection process is as follows.
+From the Wikipedia dump,
+we randomly selected data tables with at least
+8 rows and 5 columns.
+We gave preference to tables with a high fraction of
+numerical data, as more interesting questions
+with comparison and calculation can be asked about the table.
+
+\begin{table}[t]
+\centering
+\input{figures/wtq/turk-prompts.tex}
+\caption{Prompts for soliciting
+questions with a diverse set of operations.}
+\label{tab:turk-prompts}
+\end{table}
+
+After selecting the tables,
+we created two tasks on Amazon Mechanical Turk,
+a crowdsourcing service.
+In the first task, we asked the workers to write four
+trivia questions about the displayed table.
+For each question,
+we randomly gave the worker one of the 36 generic prompts
+in Table~\ref{tab:turk-prompts}
+to encourage more complex questions.
+The worker can elect to change the prompt
+if it is impossible or impractical to follow.
+
+In the second task, we asked workers to answer
+the questions from the first task on the given table.
+To aid the workers, we provided shortcuts
+for copying answers from the table,
+counting the number of selected cells,
+and computing statistics of the numbers in selected cells.
+We only kept the answers that were agreed upon
+by at least two workers.
+
+The final dataset contains 22,033 examples
+on 2,108 tables of various topics.
+We set aside 20\% of the tables and their associated questions
+as test set and only develop on the remaining examples.
+We performed simple preprocessing on the tables:
+we remove all non-textual contents
+(e.g., images and hyperlink targets),
+and if there is a merged cell spanning many rows or columns,
+we unmerge it and copy the content into each unmerged cell.
+In the later releases of the dataset,
+we also cleaned up encoding issues and
+enforced formatting consistencies among the answers.
+
+\section{Dataset analysis}\label{sec:wtq-analysis}
+
+With respect to contemporary datasets,
+the \wtq dataset was designed to cover
+a larger scope of the knowledge source (\Breadth)
+and more complex questions (\Depth).
+We will analyze the dataset along the following four aspects:
+% as outlined in Section~\ref{sec:intro-motivation}:
+
+\begin{itemize}
+\item \emph{Diversity of data schema} (a \Breadth aspect).
+The schema of an knowledge source defines the types of entities
+and relations that can exist between entities.
+For instance, in a single database table,
+we can treat the field names
+(e.g., $\{\emph{Id}, \emph{Name}, \dots\}$)
+and field types (e.g., \T{VARCHAR})
+as the schema for that table.
+To increase \Breadth, we want the dataset to
+contain knowledge sources with a large variety or an open set
+of data schemata.
+
+\item \emph{Knowledge coverage} (a \Breadth aspect).
+Large knowledge bases
+such as Freebase \cite{freebase2013dump}
+contain much more knowledge than a
+domain-specific database.
+However, the amount of knowledge is bounded by
+the fixed data schema
+and the rate in which the knowledge base is populated.
+An open-domain knowledge source,
+such as the web,
+covers a larger amount of up-to-date knowledge.
+
+\item \emph{Compositionality} (a \Depth aspect).
+One measure of task complexity
+is the number of compositions or reasoning steps needed
+to complete the task.
+Note that due to sublexical compositionality
+\cite{wang2015overnight},
+the task can be compositional
+even when the question itself is not.
+For instance, finding someone's \emph{aunt} is compositional
+if the knowledge source only allows querying
+the parent, sibling, and gender of a person.
+
+\item \emph{Types of operations} (a \Depth aspect).
+Finally, we consider the diversity of operations
+that are needed to compute the answers.
+Other than the number of unique operations,
+we also look at the properties of those operations
+(e.g., what the operations take as inputs).
+
+\end{itemize}
+
+\subsection{Analysis of the \wtq dataset}
+
+We now quantitatively analyze the \wtq dataset
+along the different aspects of \Breadth and \Depth,
+and compare the dataset with related datasets
+when applicable.
+
+\paragraph{Diversity of data schema (\Breadth).}
+
+We consider the number of different fields
+(indicated by the column header strings)
+as a rough measure of data schema diversity.
+The \wtq dataset contains 2,108 tables.
+Among them, there are 13,396 columns
+and 3,929 unique column headers.
+The diversity of column headers
+is much higher than traditional semantic parsing datasets,
+such as \Sc{Geoquery} \cite{zelle96geoquery}
+and \Sc{ATIS} \cite{dahl1994expanding},
+which use small and fixed databases.
+
+It is more tricky to compare our dataset
+with the semantic parsing datasets on knowledge bases
+such as \Sc{Free917} \cite{cai2013large}
+and \Sc{WebQuestions} \cite{berant2013freebase}.
+While large knowledge bases
+can cover a large number of relations
+among entities,
+they usually have a predefined schema.
+In contrast, tables from the web can have
+any arbitrary schema depending on the authors
+of the tables.
+
+\paragraph{Knowledge coverage (\Breadth).}
+
+We first compare the scope of knowledge
+in our dataset with the information in knowledge bases.
+% Knowledge bases are difficult to build
+% and are usually incomplete.
+To do so, we sample 50 examples from the \wtq dataset
+and tried to answer them manually by
+querying Freebase.
+Even though Freebase contains some information
+extracted from Wikipedia,
+we can answer only 20\% of the questions,
+indicating that the dataset covers
+a broader range of knowledge than Freebase.
+
+On the other hand,
+it is also true that a large amount of knowledge
+is not encoded as tables.
+Nevertheless, we argue that parallel structures on the web page,
+such as the product listing or the news feed,
+can also be interpreted as a table
+where each parallel structure becomes a table column.
+For instance, in a product listing,
+the product names can be detected based on the shared HTML properties,
+and the identified elements form a ``column'' in our virtual table.
+The same idea can be applied across different web pages
+that were generated from the same template
+(e.g., Amazon product pages).
+
+Nevertheless,
+regarding the distribution of questions,
+one downside of our data collection mechanism
+is that the crowd workers write the questions
+\emph{after} seeing the tables.
+This is the reverse of how an actual QA system would operate:
+the user first asks the question,
+and then relevant tables are retrieved
+based on the question.
+As such,
+unlike the \Sc{OpenWeb} dataset in Chapter~\ref{chp:semi},
+the distribution of questions is skewed away from
+the natural distribution of questions.
+Moreover,
+questions that cannot be answered by the given table
+are not present (except for annotation errors),
+even though detecting unanswerable questions
+is crucial for a real QA system.
+We found these sacrifices to be necessary for our task setting:
+most naturally occurring questions are either
+not factual (\nl{How can I lose weight?}),
+not complex (\nl{Where is Toronto?}),
+or not readily suitable to be answered by a table,
+and thus a considerable amount of data filtering effort
+would be needed to construct a dataset with
+a natural distribution of questions.
+
+\paragraph{Compositionality (\Depth).}
+
+One selling point of traditional semantic parsing datasets
+is the complexity of the questions.
+One extreme example from the \Sc{Geoquery} dataset
+is the question
+\nl{What states border states that border states that border states that border Texas?},
+which requires four levels of reasoning.
+
+While an average example in the \wtq dataset
+is not as compositional,
+a non-trivial fraction of examples
+do involve at least three or four levels of reasoning.
+We sample 200 examples from the training data
+and note several questions that require compositional
+reasoning in Table~\ref{tab:wtq-compositional-examples}.
+
+\newcommand{\viewerLink}[1]{{\color{blue!50!black}\href{https://ppasupat.github.io/WikiTableQuestions/viewer/\##1}{#1}}}
+\begin{table}[t]
+\centering
+\begin{tabular}{lp{5.3cm}p{7cm}} \toprule
+\textbf{Link} & \textbf{Question} & \textbf{Comments} \\
+\midrule
+\viewerLink{203-705}
+& how many people stayed at least 3 years in office?
+& Requires computing the duration between
+\emph{Took Office} and \emph{Leave Office} dates. \\
+\viewerLink{203-116}
+& which players played the same position as ardo kreek?
+& Requires finding people with that \emph{Position},
+but excluding Ardo Kreek himself. \\ 
+\viewerLink{203-104}
+& which athlete was from south korea after the year 2010?
+& Requires filtering on two criteria,
+one of which is a comparison. \\
+\viewerLink{204-475}
+& in how many games did the winning team score more than 4 points?
+& Requires finding the winning team in each row
+by comparing the two scores. \\
+\viewerLink{204-920}
+& how many consecutive friendly competitions did chalupny score in?
+& Requires interpreting ``consecutive'',
+which could be complex depending on the available operations
+in the system \\
+\viewerLink{204-725}
+& who earned more medals--vietnam or indonesia?
+& Requires comparing the \emph{Total} column
+but only for the two countries in question. \\
+\viewerLink{204-255}
+& which district has the greatest total number of electorates?
+& Requires summing up the \emph{Number of electorates}
+in each district before comparing. \\
+\viewerLink{204-157}
+& how many games were only won by 20 points or less?
+& Requires finding only the games with \emph{W} (win)
+status, and with the difference between the scores
+not exceeding 20, before counting them. \\
+\viewerLink{203-109}
+& what year did monaco ratify more international human rights treaties than they did in 1979?
+& Requires counting the number of treaties ratified in each year,
+and then find the year with more ratifications than 1979. \\
+\viewerLink{203-146}
+& jones won best actress in a play in 2005. which other award did she win that year?
+& Requires finding the award name
+(in the \emph{Category} column)
+in 2005 but excluding
+the ``Best Actress in a Play'' award. \\
+\bottomrule
+\end{tabular}
+\caption[
+Examples of compositional questions in the \wtq dataset.]{
+Examples of compositional questions in the \wtq dataset.
+The code in the \emph{Link} column is the table code
+in the dataset.
+}
+\label{tab:wtq-compositional-examples}
+\end{table}
+
+In Section~\ref{sec:wtq-analysis-again},
+we will return to quantitatively analyze
+compositionality
+by looking at the complexity of logical forms.
+
+\paragraph{Types of operations (\Depth).}
+
+The questions in the \wtq dataset require
+a diverse set of operations to answer the questions.
+We manually classified the 200 examples above
+based on the types of operations
+for answering the questions.
+The statistics in Table~\ref{tab:wtq-operations}
+shows that while a few questions only require
+a simple operation such as table look-up or counting,
+the majority of the questions
+demands more complex operations.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lr} \toprule
+\textbf{Operation} & \textbf{Amount} \\ \midrule
+look up cells in the specified column & 13.5\% \\
++ look at the next or previous rows & + 5.5\% \\
++ aggregation (e.g., counting, summing) & + 15.0\% \\
++ comparison (e.g., largest, highest) & + 24.5\% \\
++ arithmetic, union, intersection & + 20.5\% \\
++ other phenomena & + 21.0\% \\ \bottomrule
+\end{tabular}
+\caption[Operations required to answer questions in the \wtq dataset]{
+The operations required to answer the questions
+in 200 random examples from the \wtq dataset.}
+\label{tab:wtq-operations}
+\end{table}
+
+One important aspect of our data collection procedure
+is that we \emph{softly} specify the types of questions
+via question prompts.
+As Table~\ref{tab:wtq-operations} shows,
+this results in a sizable number of questions
+requiring the types of reasoning that we did not anticipate.
+Some examples of such ``other phenomena''
+include identifying the second-highest value
+(\nl{what is the next highest hard drive available after the 30gb model?}),
+summing up time periods
+(\nl{how many people stayed at least 3 years in office?}),
+or using world knowledge
+(\nl{how far did they make it in the fa cup after 2009?}
+requires knowing that \nl{Quarter-final} is better than \nl{Round of 16}).
+This is in contrast to data collection methods
+that restrict the types of questions more strongly.
+As an extreme example,
+the ``overnight'' data collection method
+\cite{wang2015overnight}
+generates a set of queries
+(e.g., logical forms or database queries)
+that the dataset wants to target,
+translates them into natural language questions using templates,
+and then asks humans to write natural paraphrases to the questions.
+By design,
+the resulting questions are guaranteed
+to have corresponding queries,
+but the diversity of questions is inherently limited
+by the templates used to generate the queries.
+Admittedly, we also observe a similar effect
+in the \wtq dataset,
+where the prompt words \nl{next} and \nl{previous}
+cause the operation
+``look at the next or previous rows'' to be slightly over-represented.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Comparison with other semantic parsing for
+question answering datasets}
+\label{sec:wtq-other-datasets}
+
+we provide an overview of semantic parsing datasets
+in the literature for comparison.
+For each dataset, we focus on its motivation
+(i.e., what challenges it is trying to address) as well as 
+the scope of the knowledge source (\Breadth)
+and the complexity of the questions (\Depth).
+
+\paragraph{Semantic parsing on databases.}
+As explained in Section~\ref{sec:rw-knowledge-based-qa},
+early semantic parsing datasets focus on answering
+highly compositional questions (high \Depth)
+on a small well-defined domain (low \Breadth).
+Some of the representative datasets are described below:
+
+\begin{itemize}
+\item \Sc{Geoquery} \cite{zelle96geoquery} contains
+880 geography questions that can be answered with a database
+of 8 tables.
+Each question is annotated with a Prolog program.
+While the questions can be very compositional,
+the database contains few relations (35 fields total)
+and entities (737 unique non-numeric values).
+A similar dataset, \Sc{Jobs} \cite{tang01ilp},
+contains 640 questions about job postings.
+
+\item \Sc{ATIS} \cite{dahl1994expanding}
+is a popular dataset for 
+natural language interfaces to database (NLIDB).
+Previous work such as \citet{he2006spoken}
+and \citet{zettlemoyer07relaxed}
+uses 4,978 training and 448 test examples,
+all of which were annotated with SQL queries.
+The dataset also contains a database of 25 tables
+with a total of 131 fields. % 24 links --> 107 unique fields.
+
+\item \Sc{Overnight} \cite{wang2015overnight} datasets
+was created using the ``overnight'' data collection framework:
+generate logical forms,
+translate them into questions using templates,
+and then crowdsource natural paraphrases
+of those questions to be used as the actual questions.
+This results in 8 datasets from 8 different domains
+that were collected within a day.
+The datasets have recently been used as a
+cross-domain semantic parsing dataset
+\cite{su2017cross,herzig2018zeroshot}.
+
+\end{itemize}
+
+As mentioned previously, while the \wtq dataset does not include
+extremely compositional (and arguably less natural) questions
+like in \Sc{Geoquery} or related datasets,
+it does contain examples with complex reasoning 
+in the action space as demonstrated in Table~\ref{tab:wtq-compositional-examples}.
+
+\paragraph{Semantic parsing on knowledge bases.}
+To extend the scope of the knowledge source,
+previous work has considered replacing small databases
+with large knowledge bases,
+which contain entities and relations
+from a variety of domains.
+The main focus of these dataset are mostly to scale
+up to the new larger knowledge source (higher \Breadth),
+and thus the question complexity is toned down
+(lower \Depth).
+
+\begin{itemize}
+\item \Sc{Free917} \cite{cai2013large}
+and
+\Sc{WebQuestions} \cite{berant2013freebase}
+contain factoid questions on Freebase,
+a large knowledge base with more than 2 billion facts,
+each describing a relation between two entities
+(e.g., $(\T{BarackObama},\T{PlaceOfBirth},\T{Honolulu})$).
+Some questions involve multi-step reasoning
+(e.g., \nl{what is the name of justin bieber brother?}
+requires filtering the answer by gender)
+and operations such as counting
+(e.g., \nl{how many australian states and territories?}).
+However,
+most questions are not compositional and
+usually involve finding the correct anchor entity
+(e.g., \T{BarackObama})
+and a short sequence of relations to reach the answer
+(e.g., \T{Spouse}--\T{PlaceOfBirth})
+\cite{yao2014ie}.
+The two datasets contain
+917 and 5,810 questions, respectively.
+
+While \Sc{Free917} is annotated with logical forms,
+\Sc{WebQuestions} was designed to have only
+a distant supervision
+of question-answer pairs.
+\citet{yih2016value} later cleans up
+and annotates the questions with SPARQL queries,
+resulting in the \Sc{WebQuestionsSP} dataset
+of 4,737 answerable questions.
+
+\item \Sc{SimpleQuestions} \cite{bordes2015simple}
+is a large-scale dataset of more than 108,442 questions
+on a subset of Freebase. The dataset was created to study
+question answering at scale. As such, it exclusively contains
+questions that only involve
+identifying the correct anchor entity
+and a single relation.
+
+\item \Sc{SPADES} \cite{bisk2016evaluating}
+contains 93,319 clozed-style questions
+derived by blanking out an entity from
+each declarative sentence.
+The sentences themselves come from
+a subset of \Sc{ClueWeb09}
+that were annotated with Freebase entities \cite{gabrilovich2013facc1}.
+While some sentences contain multiple entities,
+the dataset as a whole is not very compositional.
+
+\end{itemize}
+
+To address the reduced \Depth of the datasets above,
+more recent datasets on knowledge bases aim to increase
+the complexity of the questions:
+
+\begin{itemize}
+
+\item \Sc{QALD} \cite{lopez2013evaluating}
+is a series of shared tasks on question answering
+over knowledge bases. Some of the most frequent challenges include
+multilingual question answering, where the question can be from
+any of the given list of languages;
+and hybrid question answering, where both knowledge bases
+and \emph{unstructured text} are needed to answer the questions.
+While the scope of the knowledge source is large and
+many questions are compositional,
+especially in the hybrid task,
+the training dataset is small (less than 500 examples),
+and most participating systems resort to non-learning-based approaches.
+
+\item \Sc{GraphQuestions} \cite{su2016graphquestions}
+contains 5,166 questions
+that can be answered by graph queries on Freebase.
+In contrast to the other datasets above,
+\Sc{GraphQuestions} contains
+more compositional questions
+with multiple relations, counting (e.g., \nl{how many \dots}),
+comparison (e.g., \nl{\dots older than \dots}),
+and superlatives (e.g., \nl{\dots most recent \dots}).
+
+\item \Sc{ComplexWebQuestions} \cite{talmor2018web}
+creates complex questions by modifying the SPARQL queries
+from the \Sc{WebQuestionsSP} dataset.
+The resulting dataset contains 34,689 questions
+with complex operations such as conjunctions,
+superlatives, comparatives, and compositions.
+
+\end{itemize}
+
+\paragraph{Semantic parsing on tables.}
+After the release of the \wtq dataset,
+several datasets of question answering on tables
+have been released,
+each of which targets a different aspect
+of answering complex questions on tables.
+Similar to the setup of \wtq,
+the datasets below ensure that the tables in the training
+and test sets do not overlap.
+
+\begin{itemize}
+\item \Sc{WikiSQL} \cite{zhong2017seq2sql}
+has a similar setting to \wtq but focuses on generating SQL queries.
+The dataset is large: it contains 80,654 SQL queries with
+human-annotated descriptions on 24,241 Wikipedia tables.
+All queries follow a similar pattern of selecting a column
+(with an optional aggregation such as \T{COUNT})
+and up to 4 \T{WHERE} clauses.
+While this means the query pattern is not diverse,
+multi-step reasoning is present in the form of multiple \T{WHERE} clauses.
+Moreover, the dataset contains a large number of tables,
+making it a suitable dataset
+for learning to identify the correct table elements
+based on the question in an open-domain setting.
+
+\item \Sc{Spider} \cite{yu2018spider}
+is a recent text-to-SQL dataset with a focus on high compositionality.
+It contains 10,181 question-query pairs
+on 200 databases, each with multiple tables.
+In addition to the sheer number of SQL operations
+and nested queries,
+many examples also require using \T{JOIN} to connect the information
+across tables.
+Therefore, in addition to identifying the right SQL operators,
+the system also needs to choose the table fields from a large set
+of inter-related fields in the database.
+
+\end{itemize}
+
+\paragraph{Sequential semantic parsing.}
+To extend beyond answering a single independent question,
+previous work has proposed tasks of answering a series of
+follow-up questions or performing actions sequentially.
+The task complexity mainly manifests in the sequential nature
+of the task.
+To perform well in these tasks,
+one needs to interpret the utterance under
+the context of previous utterances
+as well as the intermediate computation state.
+
+\begin{itemize}
+\item The original \Sc{ATIS} dataset \cite{dahl1994expanding}
+contains long session data (7 turns on average)
+where the user asks a sequence of follow-up questions
+to the agent
+(e.g., asking \nl{On American Airlines}
+as a follow-up question to \nl{Show me flights
+from Seattle to Boston next Monday}).
+To perform well,
+the system needs to keep track of the dialog context
+and interprets the questions with respect to the query results
+from the previous input utterances.
+However, the majority of context-dependent utterances
+only involve ellipsis:
+the utterance adds, changes, or queries
+some pieces of information
+from the utterances preceding it
+(e.g., the \nl{On American Airlines} example above
+adds the airline to the query in the previous utterance).
+
+\item \Sc{SQA} \cite{iyyer2017search}
+contains sequential questions on Wikipedia tables.
+The questions were written based on the compositional questions
+in our \wtq dataset.
+Concretely, each step of computation is converted into a question
+annotated with the intermediate result (e.g., a set of selected cells).
+Like most sequential semantic parsing datasets,
+the questions feature context-dependent structures
+such as anaphora (e.g., \nl{Which of \textbf{them} won a Tony after 1960?})
+and ellipsis (e.g., \nl{Who had the biggest gap between their two award wins?} where the list of people considered is the filtered list
+from the previous steps).
+
+\item There are several datasets that involve
+manipulating objects in a space
+based on a sequence of utterances.
+These datasets feature context-dependent spatial reasoning
+as well as anaphora and ellipsis
+(e.g., \nl{Then move to the left of it}).
+Examples include
+\Sc{SAIL} \cite{macmahon2006walk,chen11navigate},
+where an agent navigates around a 2D grid map;
+\Sc{SCONE} \cite{long2016projections},
+where objects in a 1D space move, change properties,
+or interact with other objects;
+and \Sc{BLOCKS} \cite{bisk2016natural},
+where blocks in 2D or 3D spaces are moved
+based on either low-level or high-level commands.
+
+\end{itemize}
+
+It is arguable that using multiple context-dependent utterances
+to describe a task is more natural than
+forming a single complex question
+\cite{iyyer2017search}.
+However, this requires factoring the task into steps,
+which might be difficult when the space of possible actions
+and intermediate computation states
+are not known by the user.
+For instance,
+during the creation of the \Sc{SQA} dataset above,
+some questions in \wtq does not have clear intermediate computation results,
+and the question writers were asked to write up a new question
+in such cases.
+Furthermore, some types of compositional computations can
+be easily phrased as a single question
+(e.g., \nl{which players played \textbf{the same} position
+as ardo kreek?}).
+
+\paragraph{Visual question answering.}
+Images provide a nice playground for complex reasoning:
+each object has various properties
+(e.g., object type, color, size, amount)
+and relations with other objects
+(e.g., position, relative properties),
+while the whole scene could describe actions
+involving the objects.
+Following the success of object recognition
+\cite{krizhevsky2012imagenet,szegedy2015googlenet,he2016resnet}
+and image captioning
+\cite{farhadi2010every,lin2014microsoft,fang2015captions,mao2015deep},
+researchers turn to the task of answering questions on images,
+which requires more complex reasoning.
+
+\begin{itemize}
+
+\item Early visual QA datasets
+focus on factoid questions.
+For instance, \Sc{VQA} \cite{antol2015vqa}
+contains free-form and open-ended questions on images.
+Most images come from the MS COCO image captioning dataset
+\cite{lin2014microsoft},
+which contains a diverse set of photographs.
+Answering the questions demands various skills
+such as recognizing objects, recognizing activities,
+and factual reasoning.
+However, most questions require only one or two steps of reasoning,
+and many could be guessed without looking at the image at all
+\cite{agrawal2016analyzing,goyal2017making}.
+A later dataset, \Sc{GQA} \cite{hudson2019gqa},
+has a similar setting to \Sc{VQA}
+but with more compositional questions.
+
+\item \Sc{SHAPES} \cite{andreas2016neural}
+and \Sc{CLEVR} \cite{johnson2017clevr}
+address task complexity (\Depth) with highly compositional questions
+on synthetic scenes.
+The tasks are reminiscent of the questions in the SHRDLU system
+\cite{winograd1972language} and feature a diverse types of reasoning
+such as spatial reasoning, object property identification
+(shape, size, color, and texture),
+aggregation (e.g., \nl{How many \dots}),
+and comparison (e.g., \nl{\dots same size as \dots}).
+A follow-up dataset \Sc{CLRVR-Humans} \cite{johnson2017inferring}
+provides human-authored sentences for the scenes in the \Sc{CLEVR} dataset.
+
+\item In \Sc{NLVR} \cite{suhr2017nlvr} and \Sc{NLVR2} \cite{suhr2018nlvr2},
+the task is to identify whether the statement describes the
+image or not.
+Similar to \Sc{CLEVR},
+the questions are compositional,
+and require both spatial and logical reasoning.
+\Sc{NLVR} contains synthetic images,
+while \Sc{NLVR2} contains real photographs.
+ 
+\end{itemize}
+
+\paragraph{Parsing into domain-specific languages.}
+
+When the knowledge source does not expose its internal content,
+a QA system needs to interact with it using an interface
+specific to that knowledge source.
+For instance, a web service might expose a set of APIs
+that can be called,
+and a QA system needs to predict the correct API function
+and arguments.
+% Most question answering and object manipulation tasks
+% above can be approached using any logical form formalism
+% or query language
+% suitable for the task.
+% On the other hand, we sometimes want to parse utterances
+% into task-specific languages,
+% which usually feature unique challenges.
+We now give some examples of datasets whose outputs
+are in specific programming languages
+for interacting with such knowledge sources.
+Note that some of these datasets are not QA datasets,
+and their evaluation is based on whether the predicted program
+matches the annotated program, either at the surface level
+or at the behavioral level.
+
+\begin{itemize}
+
+\item \Sc{RegExp824} \cite{kushman2013regex}
+and \Sc{NL-RX} \cite{locascio2016regex}
+contain regular expressions and 
+their natural language descriptions.
+The system's output is evaluated on its equivalence with
+the annotated regular expression.
+
+One challenge highlighted by \citet{kushman2013regex}
+is that while multiple
+regular expressions are equivalent to each other,
+some of them align better with the
+natural language description.
+A similar sentiment is shared by our dataset:
+there are multiple ways to derive the answer.
+However, while regular expression has a deterministic
+mechanism for checking equivalence,
+it is more difficult to distinguish correct ways
+of deriving the answer from the ones that get
+the right answer for wrong reasons.
+We will study this phenomenon in detail in
+Chapter~\ref{chp:dpd}.
+
+\item \Sc{IFTTT} \cite{quirk2015language}
+is a dataset of if-this-then-that recipes
+annotated with short descriptions
+(e.g., \nl{Archive your missed calls from Android to Google Drive}).
+Each recipe contains a trigger and an action,
+both of which are API functions
+(e.g., \T{Google\_Drive}.\T{Add\_row\_to\_spreadsheet})
+with several parameters.
+While the number of distinct functions is limited,
+the main challenge comes from the
+noisy natural language descriptions,
+which often under-specify the output.
+
+\item \Sc{NL2Bash} \cite{lin2018nl2bash}
+is a recent dataset of Bash one-liners.
+While the number of Bash utilities is limited to 135,
+each utility has a distinct parameter convention (i.e., distinct schema)
+and should be considered as a separate domain.
+Furthermore,
+the commands contain a fair amount of compositionality
+with logical connectives (\T{\&\&}, \T{||})
+and nested commands (achieved via \T{|}, \T{\$(}\dots\T{)}, and \T{<(}\dots\T{)}).
+
+% \end{itemize}
+
+% \paragraph{Generating longer programs.}
+
+% Recent works have considered generating functions or classes
+% in general-purpose programming languages based on
+% natural language descriptions
+% and some additional contexts.
+% The resulting programs contain
+% multi-step computation
+% with complex constructs such as branching and loops (high \Depth).
+
+% \begin{itemize}
+
+\item \Sc{Django} \cite{oda2015learning}
+was originally a code-to-pseudocode dataset,
+but has been reversed into a semantic parsing dataset \cite{ling2016latent}.
+The output is a single line of Python from the Django project,
+a real code base with a wide variety of constructs.
+
+\item In the \Sc{MTG} and \Sc{Hearthstone} datasets \cite{ling2016latent},
+the system is given the text and metadata of a card in a
+collectible card game, and should output a class implementing the behavior
+of the card.
+While the task is in a closed domain,
+the main challenge is to infer complex card behaviors
+from a short high-level description.
+
+\item In the \Sc{CONCODE} dataset \cite{iyer2018mapping},
+the system is given a description of a Java method
+along with the signatures of fields
+and other methods in the surrounding class.
+The system should then generate the method body.
+Unlike \Sc{MTG} and \Sc{Hearthstone},
+the \Sc{CONCODE} dataset operates in an open-domain setting:
+the code and descriptions come from Github repositories,
+and the output code has to be generated
+based on what other methods are available in the class.
+
+\item 
+In the datasets above, the output is evaluated
+on surface form metrics
+(e.g., exact match and BLEU score)
+instead of functional correctness.
+Recent datasets such as
+\Sc{AlgoLisp} \cite{polosukhin2018neural}
+and \Sc{NAPS} \cite{zavershynskyi2018naps}
+address this by providing test cases to verify the correctness of
+the generated programs.
+Similar to test-driven program synthesis tasks
+\cite{gulwani2011automating,devlin2017robustfill,shi2019frangel},
+a few test cases are also available to the system,
+allowing it to search over the possible programs
+to find one that pass the test cases.
+The generated programs are then tested against hidden test cases.
+
+\end{itemize}
+
+In contrast to these datasets,
+the \wtq dataset does not include logical forms or programs
+for computing the answers.
+Apart from saving the annotation cost,
+the lack of logical forms creates an opportunity for
+different types of approaches to solving the task,
+including ones that do not use discrete symbols
+to represent steps of reasoning.
+And even among semantic parsing approaches,
+the system is free to choose a logical form language
+that suits the task or the model.
+Nevertheless, as we will explore in the subsequent chapters,
+having only the distant supervision from the annotated answers
+makes it more difficult to learn a semantic parsing model.
+
+\section{Conclusion}
+
+We have presented a new question answering task
+that features semi-structured tables from the web
+as the knowledge source (high \Breadth)
+and more complex questions that require
+various types of reasoning and compositional understanding
+(high \Depth).
+The \wtq dataset we collected contains question-answer pairs
+and not the steps for computing the answers,
+making it a flexible dataset for different types of approaches.
+
+In the next chapter,
+we explore a semantic parsing approach for tackling the task.
+To handle the unseen data schema,
+the table will be converted to a generic graph representation.
+The task is then to parse the question
+into a domain-generic logical form
+that can be executed on the graph to get an answer.
+Using this framework,
+we will highlight the challenges caused by the unseen schema
+and question complexity,
+and then address the challenges in subsequent chapters.

@@ -1,0 +1,94 @@
+\begin{tabular}{lll@{}} \toprule
+\textbf{Name} & \textbf{Logical form $z$} & \textbf{Denotation $\deno{z}{w}$} \\ \midrule
+%
+\textbf{Reverse}
+& $\Mb{R}[b]$
+& $\{(p, q) \mid (q, p) \in \deno{b}{w}\}$ \\
+\example
+& $\Mb{R}[\T{Venue}]$
+& $\{(p, q) \mid q \too{Venue} p\}$ \\ \midrule
+%
+\textbf{Join}
+& $b.u$
+& $\{p \mid \exists q, q \in \deno{u}{w} \wedge (p, q) \in \deno{b}{w}\}$ \\
+\addlinespace
+\explainA{
+\emph{Note:} To avoid confusion regarding the direction of Join,
+we use the following notations when the binary $b$ is a graph edge:
+$b.u$ is written as $\yHas{b}.u$, and $\Mb{R}[b].u$ is written as $\yOf{b}.u$.
+} \\ \addlinespace
+\example
+& $\xHas{Year}.\T{2001}$
+& $\{p \mid p \too{Year} \T{2001}\} = \{r_1\}$ \\
+& $\xOf{Date}.\T{2001}$
+& $\{p \mid \T{2001} \too{Date} p \} = \{\C{2001-XX-XX}\}$ \\
+& $\xOf{Index}.\xHas{Position}.\T{1st}$
+& $\{p \mid \exists q, q \too{Index} p \wedge q \too{Position} \T{1st}\}
+= \{2, 4\}$ \\
+& $\T{>=}.\C{4}$
+& $\{p \mid p \geq 4\}$ \\ \midrule
+%
+\textbf{Union}
+& $u_1 \sqcup u_2$
+& $\{p \mid p \in \deno{u_1}{w} \vee p \in \deno{u_2}{w}\}$ \\
+\example
+& $\T{Finland} \sqcup \T{Hungary}$
+& $\{\T{Finland}, \T{Hungary}\}$ \\ 
+%
+\textbf{Intersection}
+& $u_1 \sqcap u_2$
+& $\{p \mid p \in \deno{u_1}{w} \wedge p \in \deno{u_2}{w}\}$ \\
+\example
+& $\T{>=}.\C{1980} \sqcap \T{<}.\C{1990}$
+& $\{p \mid 1980 \leq p < 1990\}$ \\ \midrule
+%
+\textbf{Aggregation}
+& $A(u)$
+& $\{p \mid p = A(\deno{u}{w})\}$ \\ \addlinespace
+\explainA{Choices of the aggregation function $A$ include:} \\
+\explainA{$\bullet$ \T{count}: number of elements in the set} \\
+\explainA{$\bullet$ \T{min} and \T{max}: minimum and maximum value
+(can only be used on a set of numbers or dates)} \\
+\explainA{$\bullet$ \T{sum} and \T{avg}: sum and average value
+(can only be used on a set of numbers)} \\ \addlinespace
+\example
+& $\T{count}(\xHas{Event}.\T{400m})$
+& $\{p \mid p = \T{count}(\{q \mid q \too{Event} \T{400m}\})\} = \{3\}$ \\
+\midrule
+%
+\textbf{Arithmetic}
+& $\T{sub}(u_1, u_2)$
+& $\{p\mid \exists q\exists q', q \in \deno{u_1}{w} \wedge q' \in \deno{u_2}{w} \wedge p = q - q'\}$ \\ \addlinespace
+\explainA{For simplicity,
+we only consider subtraction since other arithmetic operations are rare in our dataset.}
+\\ \addlinespace
+\example
+& \multicolumn{2}{l}{$\T{sub}(\xOf{Index}.\xHas{Venue}.\T{China},
+\xOf{Index}.\xHas{Venue}.\T{Hungary})$ \qquad $\{5 - 1\} = \{4\}$}
+\\ \midrule
+\textbf{Superlative}
+& $\T{argmax}(u, b)$
+& $\{p \mid p \in \deno{u}{w} \text{ such that for any other }
+p' \in \deno{u}{w},$ \\
+& \small{(\T{argmin} is defined similarly)}
+& \quad$[\exists q \forall q', (q,p) \in \deno{b}{w} \wedge
+(q',p') \in \deno{b}{w}
+\Rightarrow q \geq q']\}$ \\ \addlinespace
+\explainA{Intuitively,
+the binary $b$ can be thought of as a function
+mapping $p \in \deno{u}{w}$ to a set of values.
+The \T{argmax} operator chooses the values $p$ that
+give the maximum mapped value.}
+\\ \addlinespace
+\example
+& $\T{allRows}$
+& $\{r_1, r_2, r_3, r_4, r_5\}$ \\
+& $\lambda r[\xOf{Index}.r]$
+& $\{(1,r_1), (2,r_2), (3,r_3), (4,r_4), (5,r_5)\}$ \\
+& $\T{argmin}(\T{allRows},
+\lambda r[\xOf{Index}.r])$
+& $\{r_1\}$ (giving the minimum value $1$)\\
+& $\xHas{Position}.\T{1st}$ & $\{r_2, r_4\}$ \\
+& \multicolumn{2}{l}{$\T{argmax}(\xHas{Position}.\T{1st}, \lambda r[\xOf{Index}.r])$ \qquad $\{r_4\}$} \\
+\bottomrule
+\end{tabular}

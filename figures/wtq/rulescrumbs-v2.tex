@@ -1,0 +1,25 @@
+\begin{table}[t]\centering\small
+\begin{tabular}{@{\;}r@{ $\to$ }lll@{}} \toprule
+\multicolumn{2}{c}{\textbf{Rule}} & \textbf{Semantics}
+& \textbf{Example} \\ \midrule
+
+$\C{TokenSpan}$ & $\C{Entity}$
+& $\mathrm{fuzzymatch}(s)$
+& $\T{China}$ \quad (from \nl{Chinese}) \\
+\explainBLong{$\Mr{fuzzymatch(s)}$ generates cell nodes with string approximately matching $s$} \\
+
+$\C{Values} + \C{ValueFn}$ & $\C{Values}$
+& $S(z_1, z_2)$
+& $\T{argmax}(\xOf{Event}.\T{allRows}, \lambda v[\T{count}(\xHas{Event}.v)])$ \\
+\explainBLong{A \C{ValueFn}, as defined in Table~\ref{tab:sempre-compositional-rules},
+maps cells or atomic values
+into comparable values} \\
+
+\bottomrule
+
+\end{tabular}
+\caption[Additional deduction rules to increase question coverage.]{
+Additional deduction rules to increase the coverage
+on answerable questions.
+}\label{tab:macro-new-rules}
+\end{table}

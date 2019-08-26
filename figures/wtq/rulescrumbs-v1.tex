@@ -1,0 +1,149 @@
+\begin{table}[tb]\centering
+\begin{tabular}{@{\;}r@{ $\to$ }lll@{}} \toprule
+\multicolumn{2}{c}{\textbf{Rule}} & \textbf{Semantics}
+& \textbf{Example} \\ \midrule
+
+$\C{TokenSpan}$ & $\C{Entity}$
+& $\mathrm{match}(s)$
+& $\T{Finland}$ \\
+\explainB{cell node with string $s$}
+&from \emph{``Finland''} \\
+
+$\C{TokenSpan}$ & $\C{Atomic}$
+& $\mathrm{value}(s)$
+& $\C{2012-07-XX}$ \\
+\explainB{interpretation of $s$ at an atomic value} 
+&from \emph{``July 2012''} \\
+
+\midrule
+
+\multicolumn{2}{l}{\quad$\varnothing$ $\to$ $\C{Relation}$}
+& $\mathrm{columns}()$
+& $\T{Venue}$ \\
+\explainB{all column edges} \\
+
+\multicolumn{2}{l}{\quad$\varnothing$ $\to$ $\C{Relation}$}
+& $\mathrm{normalizedColumns}()$
+& $\lambda x[\xHas{Year}.\xHas{Date}.x]$ \\
+\explainBLong{binaries formed by joining a column edge with
+a normalization edge} \\
+
+\multicolumn{2}{l}{\quad$\varnothing$ $\to$ $\C{Records}$}
+& $\T{allRows}$ \\
+
+\multicolumn{2}{l}{\quad$\varnothing$ $\to$ $\C{RecordFn}$}
+& $\lambda r.[\xOf{Index}.r]$ \\
+
+\bottomrule
+
+\end{tabular}
+\caption[Terminal deduction rules.]{
+Terminal deduction rules.
+Entities and atomic values (numbers and dates) are constructed from
+token spans while other predicates are not.
+}\label{tab:sempre-terminal-rules}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{table}[tb]\centering\small
+\begin{tabular}{@{\;}r@{ $\to$ }lll@{\;}} \toprule
+\multicolumn{2}{c}{\textbf{Rule}} & \textbf{Semantics}
+& \textbf{Example} \\ \midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Join + Aggregate}}} \\ 
+
+$\C{Entity}$ or $\C{Atomic}$ & $\C{Values}$
+& $z_1$
+& $\T{Finland}$ \\
+
+$\C{Atomic}$ & $\C{Values}$
+& $c.z_1$
+& $\T{>=}.\C{30}$ \\
+\explainB{$c \in \{\T{<}, \T{>}, \T{<=}, \T{>=}\}$} \\
+
+$\C{Relation} + \C{Values}$ & $\C{Records}$
+& $z_1.z_2$
+& $\xHas{Venue}.\T{Finland}$ \\
+
+$\C{Relation} + \C{Records}$ & $\C{Values}$
+& $\Mb{R}[z_1].z_2$
+& $\xOf{Year}.(\xHas{Venue}.\T{Finland})$ \\
+
+$\C{Records}$ & $\C{Records}$
+& $\xHas{Next}.z_1$
+& $\xHas{Next}.(\xHas{Venue}.\T{Finland})$ \\
+
+$\C{Records}$ & $\C{Records}$
+& $\xOf{Next}.z_1$
+& $\xOf{Next}.(\xHas{Venue}.\T{Finland})$ \\
+
+$\C{Values}$ & $\C{Atomic}$
+& $A(z_1)$
+& $\T{count}(\xHas{Venue}.\T{Finland})$ \\
+\explainB{$A \in \{\T{count}, \T{max}, \T{min}, \T{sum}, \T{avg}\}$} \\
+
+$\C{Values}$ & $\C{ROOT}$
+& $z_1$ \\
+
+\midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Union + Intersection}}} \\
+
+$\C{Entity} + \C{Entity}$ & $\C{Values}$
+& $z_1 \sqcup z_2$
+& $\T{Finland} \sqcup \T{Germany}$ \\
+
+$\C{Records} + \C{Records}$ & $\C{Records}$
+& $z_1 \sqcap z_2$
+& $\xHas{Position}.\T{1st} \sqcap \xHas{Event}.\T{Relay}$ \\
+
+\midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Superlative over rows}}} \\ 
+
+\explainBLong{A \C{RecordFn} $\lambda r[f(r)]$
+is a function that maps row nodes $r$ into comparable values} \\
+
+$\C{Relation}$ & $\C{RecordFn}$
+& $\lambda r[\Mb{R}[z_1].r]$
+& $\lambda r[\xOf{Num}.\xOf{Time}.r]$ \\
+
+$\C{Records} + \C{RecordFn}$ & $\C{Records}$
+& $S(z_1, z_2)$
+& $\T{argmax}(\T{allRows}, \lambda r[\xOf{Num}.\xOf{Time}.r])$ \\
+
+\explainB{$S \in \{\T{argmax}, \T{argmin}\}$} 
+& $\T{argmin}(\xHas{Position}.\T{1st}, \lambda r[\xOf{Index}.r])$ \\
+
+\midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Arithmetic}}} \\
+
+\explainBLong{A \C{ValueFn} $\lambda v[f(v)]$
+is a function that maps values $v$ (cells or atomic values)
+into comparable values} \\
+
+$\C{Relation}$ & $\C{ValueFn}$
+& $\lambda v[A(z_1.v)]$
+& $\lambda v[\T{count}(\xHas{Event}.v)]$  \\
+
+$\C{Relation} + \C{Relation}$ & $\C{ValueFn}$
+& $\lambda v[\Mb{R}[z_1].z_2.v]$
+& $\lambda v[\xOf{Num}.\xOf{Time}.\xHas{Event}.v]$ \\
+
+{\scriptsize$\C{ValueFn} + \C{Values} + \C{Values}$}
+& $\C{Values}$
+& \hspace*{-1em}{$\T{sub}(z_1.z_2, z_1.z_3)$}
+& $\T{sub}(\T{count}(\xHas{Event}.\T{400m}), \T{count}(\xHas{Event}.\T{Relay}))$ \\
+
+\bottomrule
+
+\end{tabular}
+\caption[Compositional deduction rules.]{
+Compositional deduction rules.
+Each rule $c_1, \dots, c_k \to c$ takes logical forms $z_1, \dots, z_k$
+constructed over categories $c_1, \dots, c_k$, respectively,
+and produces a logical form based on the semantics.
+}\label{tab:sempre-compositional-rules}
+\end{table}

@@ -1,0 +1,307 @@
+\section{Summary}
+
+\paragraph{New QA tasks with increased \Breadth and \Depth.}
+In this dissertation, we focus on improving the capability
+of question answering systems
+%natural language interfaces, such as virtual assistants
+%and natural language interface to databases,
+along two axes.
+First, to increase the scope of the knowledge sources
+that the systems operate on
+(\Breadth), we consider using web pages,
+which contain open-domain semi-structured data,
+as the knowledge source
+(Chapter~\ref{chp:semi}).
+As tabular data on web pages contain computable knowledge
+suitable for complex reasoning,
+we propose the task of answering compositional questions
+on web tables,
+which aims to increase task complexity (\Depth)
+and the scope of the knowledge source simultaneously
+(Chapter~\ref{chp:tables}).
+For the task,
+we have collected a new \wtq dataset of complex questions
+on tables and their answers.
+The dataset contains comparable or higher task complexity,
+as well as a broader open-domain knowledge source,
+than contemporary semantic parsing datasets.
+
+\paragraph{Training a semantic parser from denotations.}
+We cast the proposed QA task as learning
+a semantic parser using the annotated answers as
+distant supervision (Chapter~\ref{chp:parsing}).
+We address the increased question complexity (\Depth)
+by using compositional logical forms
+to express the multiple steps needed for computing answers.
+To construct candidate logical forms,
+the parser uses a set of deduction rules
+to build larger logical forms from smaller parts.
+
+Meanwhile, to address the potentially unseen
+table schema (\Breadth),
+we represent tables with
+schema-independent knowledge graphs,
+and then use floating deduction rules to flexibly generate
+open-domain logical form predicates
+based on the table.
+In contrast to offline information extraction,
+which assumes a fixed and canonicalized database schema,
+our on-the-fly information extraction approach
+can adapt to arbitrary data schemata and
+maintain uncertainty over the possible interpretations
+of the table.
+This ultimately allows us to answer a wider range
+of open-domain questions.
+
+\paragraph{Speeding up the parser.}
+The coverage over answerable questions can be increased
+by expanding the set of deduction rules
+and augmenting the knowledge graph representation.
+To compensate for the increased space of logical forms
+from this expansion,
+we proposed a way to improve search
+by reusing useful logical form patterns
+(Chapter~\ref{chp:macro}).
+When processing an input question,
+similar questions in the training dataset are retrieved,
+and the logical form macros from those questions
+are used to construct logical forms.
+This allows the parser to skip the generation of
+logical forms that are less likely to be a good parse.
+
+\paragraph{Converting distant supervision to direct supervision.}
+Training a parser with distant supervision requires
+performing search during training,
+which introduces several challenges.
+With the expanding space of logical forms,
+it is more difficult to find logical forms consistent
+with the correct answer during training,
+and the discovered logical forms might be spurious
+(right for wrong reasons),
+leading to bad parameter updates.
+We propose to factor out the search
+and precompute the semantically correct logical forms
+for each example,
+which effectively converts the dataset into
+a directly supervised one (Chapter~\ref{chp:dpd}).
+The resulting logical forms
+can then be used to train a parser
+that takes logical forms as supervision
+without having to perform search during training.
+
+\section{State-of-the-art on the \wtq dataset}
+
+\begin{table}[t]
+\centering
+\input{figures/wtq/sota.tex}
+\caption{Test accuracy of the previous work
+on the \wtq dataset.}
+\label{tab:conclude-sota}
+\end{table}
+
+Table~\ref{tab:conclude-sota}
+summarizes previous work on the \wtq dataset.
+Descriptions and insights of the methods and their related works
+are described below.
+The annotated answers are used as distant supervision
+unless stated otherwise.
+
+\subsection{Using continuous representations for computation}
+
+Logical form operators are interpretable
+and efficient to execute.
+However,
+a system generating such symbolic operators as discrete actions
+cannot be trained end-to-end with backpropagation.
+As an alternative,
+the following works consider using 
+differentiable operators
+to represent the steps of computing the answer.
+
+\begin{itemize}
+\item 
+Neural Programmer \cite{neelakantan2016neural,neelakantan2017learning}
+proposes to model the operators as predefined continuous functions
+such as matrix multiplication and pooling.
+At each time step, the model
+applies each operator on the current state vectors,
+and then compute a weighted average of the results
+(where the weight of each operator is predicted by the model)
+to be used as new state vectors.
+The final state vectors are used to compute the final answer.
+
+Since all operators are differentiable,
+the model can be trained end-to-end with backpropagation
+from distant supervision.
+The model will have to learn to compute the weights of the operators
+based on the input utterance and table.
+
+\item
+Similar to Neural Programmer,
+Neural Enquirer \cite{yin2016neural}
+also uses continuous functions to model the steps of computation.
+However,
+the hand-engineered networks for the operators in Neural Programmer
+are replaced with a single general network
+for computing the state vectors.
+The network can be trained using a loss function
+defined on the final denotation.
+The system is evaluated on synthetic questions that are compositional
+but closed-domain.
+
+\item
+The work by \citet{mou2017coupling}
+models the steps of computations in two ways:
+continuous functions,
+which are trained end-to-end;
+and symbolic operators,
+whose decoder is trained with REINFORCE \cite{williams1992simple}.
+The key observation is that parts of the state vectors
+from the continuous functions are interpretable
+(e.g., as attention over table rows).
+Such information
+can serve as a guidance when learning to decode symbolic operators.
+This helps mitigate the cold start problem
+of REINFORCE by boosting the chance of getting reward
+when training the symbolic decoder.
+The system is evaluated on the dataset by \citet{yin2016neural} above.
+
+\end{itemize}
+
+Continuous operators allows the model to be trained
+in an end-to-end fashion from denotations without having to
+perform search.
+However, it can be difficult to design or learn new operators
+to perform more complex reasoning;
+for instance, adding an operator to subtract one column from another
+would require either a careful design for a predefined operator,
+or a large amount of training data for a trainable operator.
+Trainable operators like in \citet{yin2016neural}
+and \citet{mou2017coupling} are also less interpretable
+than the discrete logical forms.
+
+\subsection{Different generation and scoring mechanisms}
+
+The following works use logical forms to represent
+the steps of computation,
+but employ different methods for generating
+and scoring the logical forms.
+
+\begin{itemize}
+
+\item Neural Multi-Step Reasoning \cite{haug2018neural}
+uses the floating parser (Chapter~\ref{chp:parsing})
+to generate logical form candidates,
+but then applies a neural scorer to score logical forms.
+In particular, the scorer uses
+pre-trained word embeddings and information from the table to
+embed the utterance
+and a natural language paraphrase of the logical form
+into the same space.
+The similarity score between the two embeddings becomes the score
+of the logical form.
+
+\item The work by \citet{dhamdhere2017analyza,dhamdhere2017abductive}
+uses a rule-based system to
+process the table,
+generate semantic parses from the input,
+and score them.
+To fill in the operands that the rule-based system cannot handle well
+(e.g., matching the phrase \nl{movie} to the column \emph{Title}),
+a machine learning system is trained to perform abductive reasoning
+and infer the missing values.
+The rule-based system is easy to debug
+and generates a controllable number of parses
+(8.7 on average as opposed to exponentially many parses from the
+floating parser),
+while the machine learning part helps with
+the difficult and open-domain predicates.
+
+\item Neural Decoding with Type Constraints \cite{krishnamurthy2017neural}
+trains a top-down symbolic decoder using the logical forms
+generated by DPD and fictitious tables (Chapter~\ref{chp:dpd})
+as supervision.
+Type constraints mined from logical forms
+are used to ensure the validity of the output,
+as well as to control the space of possible actions at each time step.
+
+\item Memory Augmented Policy Optimization (MAPO) \cite{liang2018mapo}
+applies a policy gradient algorithm to train an agent
+that generates logical forms in Lisp-like syntax.
+To address the cold start problem when training from a random policy,
+the work introduces (1)
+systematic exploration that caches the explored trajectories
+so that consistent logical forms are found more quickly;
+(2) a memory buffer
+for storing logical forms with high reward;
+and (3) an unbiased low-variance policy gradient update
+that incorporates both logical forms in the memory buffer
+and on-policy trajectories.
+Later works improves the reinforcement learning part
+with meta reward learning \cite{agarwal2019learning}
+and a model-based program planner \cite{biloki2019neural}.
+
+% \item The Sequential Question Answering dataset \cite{iyyer2017search} \todo{}
+
+% \item \citet{misra2018policy} \todo{}
+
+\end{itemize}
+
+\section{Future directions}
+
+\paragraph{Knowing when to abstain.}
+Our main evaluation metric, accuracy,
+encourages the model to always predict an answer
+even when (1) the question cannot be answered from the given context,
+and (2) the model is not confident about the answer.
+This is problematic is real-world settings
+where precision is more important than recall;
+for instance, a virtual assistant should not perform actions
+with misleading or disastrous consequences
+\cite{dhamdhere2017abductive}.
+One possible future direction is to make a model
+that can abstain from answering a question,
+and can make a trade-off between precision and recall
+\cite{yao2014freebase,rajpurkar2018squadrun,dong2018confidence}.
+
+\paragraph{Avoiding the long tail of phenomena.}
+\wtq is a challenging dataset containing both compositional utterances
+with little constraints, and tables with arbitrary data and formatting.
+As such, while the model errors can be categorized at a high-level
+(Section~\ref{sec:sempre-error-analysis}),
+addressing an individual error type with some heavy machinery
+would push up the score by only a small amount.
+Moreover, interesting phenomena
+that occur less frequently in the dataset
+will likely to be ignored by the model.
+
+One alternative solution is to come up with a family of datasets,
+each focusing on some particular challenge (e.g., rare logical operators
+or table understanding) while keeping the rest fixed.
+This way, methods for handling the phenomena could be developed
+more quickly with clear results.
+Another potential solution is to gather new examples
+for the rare phenomena in an interactive fashion.
+
+\paragraph{Combining information from multiple sources.}
+Finally, the tasks introduced in this dissertation
+are limited to using one source of data for all computation steps.
+In reality, the information needed to perform a task
+is often scattered around in multiple knowledge sources.
+For instance, to handle the query \nl{Direction to John's house},
+the system would need to identify who John is
+(e.g., by finding a close friend on Facebook with name John),
+find his address
+(e.g., by looking up on John's personal web page),
+and then find the direction
+(e.g., using GPS and a map application).
+
+Several question answering and semantic parsing datasets
+such as QALD \cite{lopez2013evaluating},
+Spider \cite{yu2018spider},
+HotpotQA \cite{yang2018hotpotqa},
+and DROP \cite{dua2019drop}
+require the fusion of knowledge from multiple sources.
+We believe that the ability to plan complex actions
+on multiple, open-domain environments is the right path
+toward an ideal natural language interface.

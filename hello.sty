@@ -8,12 +8,13 @@
 \usepackage{stmaryrd}  % Theoretical CS symbols
 
 \usepackage{graphicx}  % Graphics
+\usepackage{subcaption}
 \usepackage{color}     % Colored text
 \usepackage{xcolor}    % Custom colors
 
 \usepackage{verbatim}  % \begin{verbatim}
 \usepackage{listings}  % \begin{lstlisting}
-\usepackage{enumitem}  % \begin{enumerate}[...]
+\usepackage{enumitem}  % \begin{enumerate}[...]}
 \usepackage{algorithm} % \begin{algorithm}
 \usepackage[noend]{algpseudocode} % \begin{algorithmic}
 
@@ -27,18 +28,40 @@
 \usepackage{multicol}  % Rows spanning multiple columns
 \usepackage{hhline}    % Double border for table
 \usepackage{dcolumn}   % Decimal-align table columns
+\usepackage{booktabs}  % Professional tables
+\renewcommand\arraystretch{1.15}  % More room in cells
 
 \usepackage{tikz}      % Drawing
 \usepackage{pgfplots}  % Plot
+\pgfplotsset{compat=1.14}
 
-% Font = Times
-\renewcommand{\rmdefault}{ptm}
+\usepackage{natbib}
+% for citation commands in the .tex, authors can use:
+% \citep, \citet, and \citeyearpar for compatibility with natbib, or
+% \cite, \newcite, and \shortcite for compatibility with older ACL .sty files
+\renewcommand\cite{\citep}	% to get "(Author Year)" with natbib
+\newcommand\shortcite{\citeyearpar}% to get "(Year)" with natbib
+\newcommand\newcite{\citet}	% to get "Author (Year)" with natbib
 
-% Comment out chunks.
-\newcommand{\punt}[1]{}
+\renewcommand{\rmdefault}{ptm} % Font = Times
+\usepackage[T1]{fontenc}       % Font with accented characters
+\usepackage[utf8]{inputenc}    % Use UTF-8 in .tex files
+
+% hyperref colors
+\hypersetup{
+  colorlinks,
+  linkcolor={red!50!black},
+  citecolor={blue!50!black},
+  urlcolor={blue!80!black}
+}
+
+% TODO and placeholders
+\newcommand{\todo}[1]{{\color{red}\textbf{[TODO: #1]}}\xspace}
+\newcommand{\qqq}{{\color{red}\textbf{???}}\xspace}
+\newcommand{\citex}{{\color{red}\textbf{[TODO: CITE!]}}\xspace}
+\newcommand{\redacted}[1]{{\color{red}\textbf{[TODO: Uncomment this]}}}
 
 %% Math style shorthands
-
 \newcommand{\Mb}    {\mathbf}
 \newcommand{\Mr}    {\mathrm}
 \newcommand{\Mc}    {\mathcal}
@@ -56,6 +79,9 @@
 \newcommand{\CC}	{\mathbb{C}}
 \newcommand{\FF}	{\mathbb{F}}
 \newcommand{\II}	{\mathbb{I}}
+\newcommand{\PP}    {\mathbb{P}}
+\newcommand{\EE}    {\mathbb{E}}
+\newcommand{\HH}    {\mathbb{H}}
 
 % Useful shorthands.
 \newcommand{\norm}[1]   {\left\| #1\right\|}
@@ -65,26 +91,10 @@
 \newcommand{\floor}[1]  {\left\lfloor #1 \right\rfloor}
 \newcommand{\ceil}[1]   {\left\lceil #1 \right\rceil}
 \newcommand{\ang}[1]    {\left\langle #1 \right\rangle}
-\newcommand{\moom}[1]   {\left\langle #1 \right\rangle}
 \newcommand{\crab}[1]	{\left[ #1 \right]}
 \newcommand{\crow}[1]	{\left\{ #1 \right\}}
 \newcommand{\nail}[1]	{\left( #1 \right)}
-\newcommand{\lt}[1]	    {\left#1}
-\newcommand{\rt}[1]  	{\right#1}
-
-\DeclareMathOperator{\probability}{\mathbb{P}}
-\DeclareMathOperator{\expectation}{\mathbb{E}}
-\DeclareMathOperator{\variance}{Var}
-\DeclareMathOperator{\covariance}{Cov}
-\newcommand{\prob}[2][]  {\probability_{#1}\left[ #2 \right]}
-\newcommand{\probb}[2][] {\probability_{#1}[ #2 ]}
-\newcommand{\ex}[2][]    {\expectation_{#1}\left[ #2 \right]}
-\newcommand{\exx}[2][]   {\expectation_{#1}[ #2 ]}
-\newcommand{\var}[2][]   {\variance_{#1}\left[ #2 \right]}
-\newcommand{\varr}[2][]  {\variance_{#1}[ #2 ]}
-\newcommand{\cov}[2][]   {\covariance_{#1}\left[ #2 \right]}
-\newcommand{\covv}[2][]  {\covariance_{#1}[ #2 ]}
-\newcommand{\midd}       {\;\middle|\;}
+\newcommand{\midd}      {\;\middle|\;}
 
 \newcommand{\matx}[2][\crab]{#1{\,\begin{matrix}#2\end{matrix}\,}}
 \newcommand{\Adj}           {\mathop{\rm Adj}\nolimits}
@@ -95,16 +105,58 @@
 \newcommand{\cwhen}[1]      {\mbox{when $#1$}}
 \newcommand{\cotherw}       {\mbox{otherwise}}
 
-\newcommand{\imod}[1]       {\!\pmod{#1}}
 \newcommand{\baa}           {\overline}
 
 \DeclareMathOperator{\tr}{tr}
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator{\rank}{rank}
-
-\renewcommand\Re{\operatorname{Re}}
-\renewcommand\Im{\operatorname{Im}}
-
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
+
+\newcommand{\deno}[2]{\llbracket{#1}\rrbracket_{#2}}
+\renewcommand{\i}{^{(i)}}
+\newcommand{\blank}{\underline{\hspace{2em}}\xspace}
+\newcommand{\blanko}{\underline{\hspace{2em}}}
+
+% Formatting
+\newcommand{\nl}[1]{``\emph{#1}''}
+\newcommand{\wl}[1]{\texttt{\small #1}}
+
+\newcommand{\T}[1]{\texttt{#1}}
+\newcommand{\C}[1]{\text{\emph{#1}}}
+\newcommand{\G}[1]{\textcolor{green!50!black}{(#1)}}
+\newcommand{\becomes}{\rightarrowtail}
+
+\newcommand{\zx}{\Mc{Z}_x}
+\newcommand{\zsx}{\Mc{Z}^\Mr{S}_x}
+\newcommand{\zcx}{\Mc{Z}^\Mr{C}_x}
+
+% These are dummy ones:
+\newcommand{\yHas}[1]{\T{Has}{#1}}
+\newcommand{\yOf}[1]{{#1}\T{Of}}
+% These are the main ones:
+\newcommand{\xHas}[1]{\yHas{\T{#1}}}
+\newcommand{\xOf}[1]{\yOf{\T{#1}}}
+% These are for macros:
+\newcommand{\A}[1]{\{#1\}}
+\newcommand{\aHas}[1]{\yHas{\A{#1}}}
+\newcommand{\aOf}[1]{\yOf{\A{#1}}}
+
+% Shorthands
+\newcommand{\wtq}{\textsc{WikiTableQuestions}\xspace}
+\newcommand{\runningEx}{\nl{Where did the last 1st place finish occur?}\xspace}
+\newcommand{\runningLF}{\ensuremath{\xOf{Venue}.\T{argmax}(\xHas{Position}.\T{1st}, \lambda r[\xOf{Index}.r])}\xspace}
+\newcommand{\Breadth}{\Sc{breadth}\xspace}
+\newcommand{\Depth}{\Sc{depth}\xspace}
+
+% Lambda DCS table
+
+\newcommand{\example}{\quad\emph{Example:}}
+\newcommand{\too}[1]{\xrightarrow{\T{#1}}}
+\newcommand{\explainA}[1]{\multicolumn{3}{p{14.5cm}}{#1}}
+\newcommand{\explainB}[1]{\multicolumn{3}{c}{\G{#1}}}
+\newcommand{\explainBLong}[1]{\multicolumn{4}{c}{\G{#1}}}
+\newcommand{\noexplainB}{\multicolumn{3}{c}{}}
+\newcommand{\explainC}[1]{\multicolumn{4}{c}{\G{#1}}}
+\newcommand{\explainD}[1]{\multicolumn{2}{l}{\G{#1}}}

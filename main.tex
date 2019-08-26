@@ -1,7 +1,9 @@
 \documentclass{report}
-\usepackage{suthesis-2e}
+
+\usepackage[online]{suthesis-2e}
+%\pagenumbering{gobble}
+
 \usepackage{hello}
-\input{macros.tex}
 \dept{Computer Science}
 
 \begin{document}
@@ -12,19 +14,45 @@
 \secondreader{Dan Jurafsky}
  
 \beforepreface
-\input{0_preface.tex}
+\input{0_abstract.tex}
+\input{0_acknowledgments.tex}
 \afterpreface
 
-%\input{1_intro.tex}
-%\input{2_semi.tex}
-%\input{3_tables.tex}
-%\input{4_parsing.tex}
-\input{5_dpd.tex}
-%\input{6_patterns.tex}
-%\input{7_conclusion.tex}
+\chapter{Introduction}
+\label{chp:intro}
+\input{1_intro.tex}
+
+\chapter{Related Work}
+\label{chp:related}
+\input{2_related_work.tex}
+
+\chapter{Semi-Structured Data on Web Pages}
+\label{chp:semi}
+\input{3_semi.tex}
+
+\chapter{Compositional Question Answering on Web Tables}
+\label{chp:tables}
+\input{4_tables.tex}
+
+\chapter{Semantic Parsing with Flexible Composition}
+\label{chp:parsing}
+\input{5_parsing.tex}
+
+\chapter{Guiding Search with Logical Form Patterns}
+\label{chp:macro}
+\input{6_macros.tex}
+
+\chapter{Precomputing Semantically Correct Logical Forms}
+\label{chp:dpd}
+\input{7_dpd_fictitious.tex}
+
+\chapter{Conclusion}
+\label{chp:conclusion}
+\input{8_conclusion.tex}
 
 \appendix
 
-\bibliographystyle{plain}
+\bibliographystyle{acl_natbib_nourl}
 \bibliography{all}
+
 \end{document}

@@ -1,0 +1,104 @@
+% \begin{tabular}{|l|p{4.8cm}|p{5cm}|r|}\hline
+% \textbf{Phenomenon} & \textbf{Description} & \textbf{Example} & \textbf{Count} \\ \hline
+% substring match &
+% The command contains only a substring of the element's text (after stemming). &
+% \nl{view internships with energy.gov} $\to$ ``Careers \& Internship link &
+% 7.0 \% \\ \hline
+% paraphrase &
+% The command paraphrases the element's text. &
+% \nl{click sign in} $\to$ ``Login'' link &
+% 15.5 \% \\ \hline
+% goal description &
+% The command describes an action or asks a question. &
+% \nl{change language} $\to$ a clickable box with text ``English'' &
+% 18.0 \% \\ \hline
+% summarization &
+% The command summarizes the text in the element. &
+% \nl{go to the article about the bengals trade}
+% $\to$ the article title link &
+% 1.5 \% \\ \hline
+% element description &
+% The command describes a property of the element. &
+% \nl{click blue button} &
+% 2.0 \% \\ \hline
+% relational reasoning &
+% The command requires reasoning with another element or its surrounding context. &
+% \nl{show cookies info}
+% $\to$ ``More Info'' in the cookies warning bar, not in the news section &
+% 2.5 \% \\ \hline
+%   ordinal reasoning &
+% The command uses an ordinal. &
+% \nl{click on the first article} &
+% 3.5 \% \\ \hline
+% spatial reasoning &
+% The command describes the element's position. &
+% \nl{click the three slashes at the top left of the page} &
+% 2.0 \% \\ \hline
+% image target &
+% The target is an image (no text). &
+% \nl{select the favorites button} &
+% 11.5 \% \\ \hline
+% form input target &
+% The target is an input (text box, check box, drop-down list, etc.). &
+% \nl{in the search bar, type testing} &
+% 6.5 \% \\ \hline
+% \end{tabular}
+
+\begin{tabular}{llr}\toprule
+\textbf{Phenomenon} & \textbf{Description and example} & \textbf{Count} \\ \midrule
+substring match
+& The command has only a substring of the element's text {\small(after stemming)}.
+& 7.0 \% \\
+& \nl{view internships with energy.gov}
+$\to$ \nl{Careers \& Internship} link \\
+%
+paraphrase
+& The command paraphrases the element's text.
+& 15.5 \% \\
+& \nl{click sign in}
+$\to$ \nl{Login} link \\
+%
+goal description
+& The command describes an action or asks a question.
+& 18.0 \% \\
+& \nl{change language}
+$\to$ a clickable box with text \nl{English} \\
+%
+summarization
+& The command summarizes the text in the element.
+& 1.5 \% \\
+& \nl{go to the article about the bengals trade}
+$\to$ the article title link \\
+%
+element description
+& The command describes a property of the element.
+& 2.0 \% \\
+& \nl{click blue button} \\
+%
+relational reasoning
+& The command requires reasoning with its context. %another element or its surrounding context. &
+& 2.5 \% \\
+& \nl{show cookies info}
+$\to$ \nl{More Info} in the cookies warning bar, \\
+& \hspace*{9.8em} not the news section \\
+%
+ordinal reasoning
+& The command uses an ordinal.
+& 3.5 \% \\
+& \nl{click on the first article} \\
+%
+spatial reasoning 
+& The command describes the element's position.
+& 2.0 \% \\
+& \nl{click the three slashes at the top left of the page} \\
+%
+image target
+& The target is an image (no text).
+& 11.5 \% \\
+& \nl{select the favorites button} \\
+%
+form input target
+& The target is an input (e.g., text box, check box, drop-down list)
+& 6.5 \% \\
+& \nl{in the search bar, type testing} \\ \bottomrule
+\end{tabular}

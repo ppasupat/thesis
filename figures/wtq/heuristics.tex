@@ -1,0 +1,31 @@
+\begin{tabular}{ll} \toprule
+\textbf{Criterion for pruning a logical form $z$} & \textbf{Example} \\ \midrule
+% emptyDenotation + nonLambdaError
+$z$ cannot be executed or executes to an empty set
+& $\xHas{Venue}.\T{1st}$ \\
+% forwardBackward
+$z$ contains a relation joined with its inverse
+& $\xOf{Position}.\xHas{Position}.\T{1st}$ \\
+% doubleNext
+$z$ contains a join of two $\T{Next}$ predicates
+& $\xOf{Next}.\xOf{Next}.\xHas{Position}.\T{1st}$ \\
+% sameMerge
+$z$ is a union or intersection of identical logical forms
+& $\T{1st} \sqcap \T{1st}$ \\
+% mistypedMerge
+$z$ is a union or intersection of values with different types
+& $\T{5th} \sqcup \T{Germany}$ \\
+\quad (Cells from different columns are considered different types.) \\
+% badSuperlativeHead
+$z$ is a superlative on a set of size 1
+& $\T{argmax}(\xHas{Index}.\C{1}, \dots)$ \\
+% multipleSuperlatives
+$z$ contains multiple superlatives
+& $\T{argmax}(\dots) \sqcap \T{argmin}(\dots)$ \\
+% singleton
+$z$ is a \C{ROOT} logical form with only a single predicate
+& $\T{1st}$ (at category \C{ROOT})\\
+% tooManyValues
+$z$ is a \C{ROOT} logical form whose denotation contains > 10 values \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,41 @@
+\begin{tabular}{lrr} \toprule
+& \multicolumn{2}{c}{\textbf{Test accuracy}} \\
+\cmidrule{2-3}
+\textbf{System}
+& \textbf{Single model}
+& \textbf{Ensemble} \\ \midrule
+Original deduction rules (Chapter~\ref{chp:parsing})
+& 37.1
+& - \\
+Expanded deduction rules (Chapter~\ref{chp:macro})
+& 42.7
+& - \\
+Expanded deduction rules + macros (Chapter~\ref{chp:macro})
+& 43.7
+& - \\ 
+\midrule
+
+Neural Programmer \cite{neelakantan2017learning}
+& 34.2
+& 37.7 \\
+Neural Multi-Step Reasoning \cite{haug2018neural}
+& 34.8
+& 38.7 \\
+Rule-based + Abductive Matching \cite{dhamdhere2017abductive}
+& 40.4
+& - \\
+Neural Decoding with Type Constraints \cite{krishnamurthy2017neural}
+& 43.3
+& 45.9 \\
+Memory Augmented Policy Optimization (MAPO) \cite{liang2018mapo}
+& 43.9
+& 46.3 \\
+MAPO + Meta Reward Learning \cite{agarwal2019learning}
+& 44.1
+& 46.9 \\
+MAPO + Neural Program Planner \cite{biloki2019neural}
+& 43.9
+& 47.2 \\
+\bottomrule
+
+\end{tabular}
