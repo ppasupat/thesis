@@ -1,0 +1,81 @@
+\prefacesection{Abstract}
+%We are interested in %natural language interfaces
+Question answering (QA) systems
+take natural language questions
+and then compute answers based on a knowledge source.
+%and perform actions accordingly in some environment.
+% Examples of such interfaces are
+% natural language interfaces to databases,
+% which convert the input utterances into queries
+% for retrieving information from a database;
+% and virtual assistants, 
+% which listen to voice commands and then
+% issue API calls to
+% interact with other applications.
+This dissertation focuses on improving
+QA systems along two axes.
+First, instead of operating on knowledge sources with a fixed schema
+such as a database,
+we propose to use web pages,
+which contain a large amount of up-to-date open-domain information
+(high \Breadth),
+as the knowledge source.
+Second, we want the QA system to understand more
+complex questions and perform different types of multi-step reasoning
+to compute the answer
+(high \Depth).
+Unlike most previous works on retrieval-based QA
+(which operate on open-domain unstructured text
+but target only factoid questions)
+and knowledge-based QA
+(which can handle compositional questions
+but on knowledge sources with fixed schemata),
+we aim to address the two axes simultaneously.
+
+One important aspect of web pages is that they are semi-structured:
+they contain structural constructs
+such as tables and template-generated product listings,
+but the schemata of such structures are not known in advance
+by the QA system.
+To explore the semi-structured nature of web pages,
+we first investigate the task of extracting a list of entities
+from the web page
+based on the natural language specification
+(e.g., from \nl{(What are) hiking trails near Baltimore},
+extract the trail names from a table column).
+Then, to increase the complexity of the questions,
+we next study the task of answering complex questions
+on open-domain semi-structured web tables
+using question-answer pairs as supervision
+(e.g., answering \nl{Where did the last 1st place finish occur?}
+in an athlete's statistics table).
+To handle compositional questions with
+different types of operations,
+we frame the task as learning a semantic parser,
+which maps questions into
+compositional logical forms that can be
+executed to get the answer.
+% Using the \wtq dataset we collected as a benchmark,
+% we propose methods to
+% 1) flexibly handle lexical and syntactic
+% mismatches between the utterance and logical form,
+% 2) filter misleading logical forms that
+% sometimes give correct answers, and
+% 3) reuse parts of good logical forms to
+% make training more efficient.
+Our semantic parser can answer complex questions
+on unseen web tables
+and achieves an accuracy of
+43.7\% on the dataset.
+Overall, we show that
+while the unknown schema of the tables
+(increased \Breadth)
+and complexity in the questions (increased \Depth)
+lead to an exploding search space of logical forms,
+our proposed methods control the
+search space to a manageable size,
+enabling us to train a QA system
+that can operate on open-domain web pages.
+The resulting QA system can potentially enable virtual assistants,
+search engines, and other similar products
+to handle a much wider range of user's utterances.

@@ -9,3 +9,6 @@
 main.pdf
 *.swp
 *~
+
+/refdb
+/tmp

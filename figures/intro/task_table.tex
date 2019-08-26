@@ -1,0 +1,54 @@
+\newcommand{\introtask}[1]{\addlinespace\multicolumn{4}{l}{\textbf{#1}}}
+\newcommand{\introcell}[1]{\begingroup
+\renewcommand*{\arraystretch}{1.0}
+\begin{tabular}{@{}c@{}}#1\end{tabular}
+\endgroup}
+
+\begin{tabular}{cccc} \toprule
+ \textbf{Utterance $x$}
+& \textbf{Environment $w$}
+& \textbf{Actions $z$} 
+& \textbf{Result $y$} \\ \midrule
+%
+\introtask{Interact with an app via API:} \\
+  \nl{Set an alarm at 8 am.}
+& alarm app
+& $\T{AddAlarm}(\T{time}=0800)$
+& a new alarm \\
+%
+\introtask{Natural language interface to databases:} \\
+ \nl{Where was Obama born?}
+& a curated database
+& \introcell{\T{SELECT place\_of\_birth} \\ \T{WHERE name="Obama"}}
+% & \nl{Kenya}
+& \nl{Honolulu, HI} \\
+
+\introtask{Smart search engine:} \\
+ \nl{Mario games}
+& query handlers
+& \introcell{route the query to handlers \\ aggregate the results}
+& \introcell{list of games, \\ Wikipedia snippet, \\ relevant documents, \\ etc.} \\
+%
+\addlinespace
+\midrule
+\introtask{Identify an HTML element on a web page (Section~\ref{sec:webrep}):} \\
+ \nl{follow on facebook}
+& a web page
+& Select \T{<a>}\#125
+& \raisebox{-.3em}{\includegraphics[height=1.5em]{figures/intro/facebook.png}} \\
+%
+\introtask{Extract a list of entities from a web page (Section~\ref{sec:openweb}):} \\
+ \nl{list of hiking trails}
+& a web page
+& \introcell{\T{/html/body/table[2]} \\ \T{/tr/td[1]}}
+& \introcell{\{\nl{Avalon Loop}, \\ \nl{Hilton Area}, \dots\}} \\
+%
+\introtask{Answer a compositional question on a web table (Chapter~\ref{chp:tables}):} \\
+\introcell{``\emph{Where did the last} \\ \emph{1st place finish occur?}''}
+& a web table
+& \introcell{$\xOf{Venue}.\T{argmax}($ \\
+\hspace*{2em} $\xHas{Position}.\T{1st},$ \\
+\hspace*{2em} $\lambda r[\xOf{Index}.r])$}
+& \nl{Thailand} \\
+\addlinespace \bottomrule
+\end{tabular}

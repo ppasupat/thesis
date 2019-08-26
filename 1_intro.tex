@@ -1,41 +1,592 @@
-\chapter{Introduction}\label{chp:intro}
-
 \section{Motivation}
+\label{sec:intro-motivation}
 
-\subsection{Academic motivation}
-We want to work toward true natural language understanding.
+% At the time of writing this dissertation,
+% virtual assistants such as Apple's Siri
+% and Amazon Alexa
+% have become mainstream
+% commercial products
+% thanks to the ubiquity of smart devices.
+% With the recent advances in speech recognition
+% and natural language understanding,
+% virtual assistants can listen to the user's voice command
+% and perform various tasks such as
+% retrieving information or
+% interacting with other applications
+% via application programming interfaces (APIs).
+% \todo{Lead with question answering instead of virtual assistant}
 
-Previous work on question answering
-and information extraction tend to focus on one of:
+% A core functionality of virtual assistants
+% and many other natural language interfaces
+% (e.g., smart search engines)
+% is \emph{question answering} (QA)
+% \cite{lehnert1977conceptual,hirschman2001natural,voorhees1999overview,brill2002askmsr}.
+% Given a natural language question $x$,
+% a question answering system references a \emph{knowledge source} $w$
+% to compute an answer $y$ to the question.
+% For instance,
+% when the user asks for the weather with utterance
+% $x =$ \nl{What's the weather today?},
+% a virtual assistant may utilize $w =$ its built-in API system
+% by issuing an API call such as $\T{GetWeather}(\T{date}=\T{today})$
+% to get the answer $y =$\nl{23$^{\circ}$C sunny}.
+% As another example,
+% modern search engines use both text in web documents (unstructured data)
+% and proprietary \emph{knowledge graphs} (structured data)
+% as knowledge sources
+% to answer queries that look like questions
+% (e.g., \nl{where was obama born}).
+
+Question answering (QA) has been both an academically critical
+and commercially viable task
+throughout the history of artificial intelligence.
+From the pedagogical viewpoint,
+the ability to comprehend and respond to natural language questions
+has been used to evaluate the ``intelligence''
+of artificial intelligence systems
+since the early days
+\cite{turing1950computing,winograd1972language}.
+And from the practical viewpoint,
+question answering has become the core functionality of
+crucial commercial products such as
+search engines, virtual assistants,
+and automated help systems.
+% Thanks to the ubiquity of smart devices and the
+% recent advances in speech recognition,
+% more users now communicate with such products with
+% natural language sentences
+% instead of database queries (unnatural and difficult to master)
+% or a set of keywords (limited expressiveness).
+Needless to say,
+improving the capability of QA systems
+will have a large impact in both academic and business endeavors.
+
+% In this dissertation,
+% we investigate QA systems using the following framework:
+While question answering is a large and diverse field,
+almost all QA systems fundamentally share the same basic structure:
+given a natural language \emph{question} $x$,
+a QA system references some \emph{knowledge source} $w$
+to compute an \emph{answer} $y$ to the question.
+However, different QA systems target different types of questions
+and utilize different knowledge sources,
+as demonstrated in the examples below:
 
 \begin{itemize}
-\item \textbf{Breadth.}
-The size of the domain or knowledge source.
-The ideal case is open-domain (e.g., retrieval + open QA).
-\item \textbf{Depth.}
-The complexity of the process required to get the output.
-The ideal case is when the process is a composition of
-multiple steps (e.g., database query).
+\item
+An extractive reading comprehension system
+\cite{brill2002askmsr,seo2016bidaf,chen2016thorough}
+can answer questions 
+(e.g., $x =$ \nl{Where was Barack Obama born?})
+by looking at unstructured text
+($w =$ the Wikipedia article \emph{Barack Obama})
+and extracting a phrase to be used as the answer
+($y =$ \nl{Honolulu, Hawaii}).
+
+\item
+A task-oriented virtual assistant
+\cite{pieraccini1991stochastic,raymond2007generative,mesnil2014using}
+can handle domain-specific questions
+by issuing API queries to a database service.
+For instance, when the user asks the question
+$x =$ \nl{What's the weather in Seattle today?},
+the system can issue a query of the form
+$\T{GetWeather}(\T{location}=\T{Seattle}, \T{date}=\T{GetToday}())$
+to $w =$ a weather database
+to get the answer $y =$\nl{23$^{\circ}$C sunny}.
+
+\item
+Some search engines such as Google and Microsoft Bing
+use \emph{knowledge bases} as the knowledge source.
+A knowledge base contains open-domain information that were
+either manually curated or automatically extracted from
+other knowledge sources.
+When such search engines detect a fact-based question
+(e.g., $x =$ \nl{Where was Barack Obama's wife born?}),
+they can construct a knowledge base query
+that yields the answer ($y =$ \nl{Chicago, IL}).
+
+% \item
+% Finally,
+% larger QA systems such as IBM Watson \cite{ferrucci2013watson}
+% and modern search engines can use both
+% text in web documents (similar to the first example)
+% and proprietary databases or knowledge bases
+% (similar to the second example)
+% as knowledge sources
+% to answer different types of queries.
 \end{itemize}
 
-We propose a framework that handle 
-\begin{itemize}
-\item \textbf{Breadth.}
-We choose web pages.
-In particular, at test time, we test on unseen contexts.
-\item \textbf{Depth.}
-We want to handle various operations
-(comparison, computation, aggregation, spatial reasoning, etc.).
-To allow this to happen, we slightly restrict the breadth
-and look at semi-structured data such as
-web page layouts, lists, and tables
-(i.e., not the paragraph text).
-\end{itemize}
+This dissertation focuses on improving
+the capability of question answering systems along two axes:
+widening the scope of the knowledge source
+that the system can use (\Breadth)
+and increasing the complexity of the questions
+that the system can handle (\Depth).
 
-\subsection{Practical motivation}
+\subsection{\Breadth: Scope of the knowledge source}
+\label{sec:intro-breadth}
+
+Question answering systems are designed to work
+within different types of knowledge sources,
+each with different benefits and restrictions.
+On one end of the spectrum,
+natural language understanding systems
+in most virtual assistants
+\cite{pieraccini1991stochastic,raymond2007generative,mesnil2014using}
+and natural language interfaces to databases
+\cite{hendrix1978developing,androutsopoulos95nlidb}
+are designed to work well in a knowledge source
+with a predefined domain,
+such as reserving flights or interacting
+with an internal financial database.
+The knowledge sources they use,
+such as databases and knowledge bases,
+have a predefined \emph{schema}
+dictating what types of entities exist in the knowledge source
+and what relations they can have with one another.
+For instance,
+a database in the flight domain
+would have information about flights and airports,
+but might not contain other general knowledge such as tourist attractions.
+With a fixed data schema,
+the QA system can restrict the possible
+interpretations of the utterances $x$
+to the ones that fit the schema,
+making it easier to design or train the system.
+However,
+the fixed schema
+inherently limits
+the scope of utterances the system can handle.
+% For instance, the available fields
+% of database tables limits the type of information,
+% and thus the amount of knowledge,
+% that can be encoded in the database.
+For instance, the flight database mentioned above
+would not be able to handle the question
+\nl{What are flights to Cornell University next weekend}
+since the information about Cornell's location
+is not encoded in the database.
+
+To handle a broader set of questions,
+a QA system needs to utilize
+\emph{open-domain} knowledge sources with arbitrary data schema.
+For instance,
+instead of using a fixed domain-specific database,
+a natural language interface to databases
+that knows how to utilize any arbitrary databases
+(which might be selected on-the-fly based on the input question)
+% to a new service or can utilize any backend database
+would be able to answer a wider range of questions.
+% Ideally, we want the system to \emph{generalize
+% to new domains} with new data schemata.
+% Examples of this \emph{open-domain} setting
+% include a virtual assistant that can issue API calls
+% to a newly installed mobile app,
+% or a question answering system that works
+% on any backend database.
+%As the schema for the new domain is unseen,
+However,
+the lack of a fixed data schema
+makes it difficult to interpret the questions.
+For instance, the question
+\nl{How many US presidents are from New York?}
+might involve just a simple number lookup in one data schema,
+but could require complex filtering and counting
+in others.
+The QA system has to choose the correct method to compute the answer
+based on the data schema, which can be challenging
+if it has never encountered the schema before.
+% However, being able to handle new data schemata
+% gives the system access to more types of information,
+% which in turn increases the scope of questions
+% that can be answered.
+
+That said,
+using open-domain knowledge sources in a QA system
+is not an impossible feat.
+Unlike the closed-domain QA systems above,
+previous work on \emph{retrieval-based QA} has been using
+open-domain knowledge found in unstructured data as the knowledge source.
+For instance,
+text-based QA systems
+\cite{voorhees1999overview,brill2002askmsr,seo2016bidaf,chen2017reading}
+use reading comprehension models to extract answers
+from text paragraphs or documents,
+while visual QA systems
+\cite{antol2015vqa,tapaswi2016movieqa}
+can answer questions based on the given images or videos.
+Nevertheless,
+most previous retrieval-based QA works
+do not target more complex questions that require multi-step reasoning;
+for instance, a retrieval-based QA system will have a hard time
+answering the question \nl{How many US presidents are from New York?}
+if the number is not explicitly stated in the document.
+As we will discuss in the following subsection,
+the struggle to perform multi-step reasoning
+can prevent the system from answering
+a significant portion of interesting questions,
+even though the knowledge source is open-domain.
+% including some complex questions
+% disguised in linguistically simple phrasing.
+
+% Another important aspect of the environment scope is
+% the \emph{knowledge coverage}:
+% the amount of real-world information
+% actually encoded in the environment.
+% In particular,
+% we argue that working directly on raw open-domain data
+% (e.g., web pages or text documents)
+% leads to higher knowledge coverage than a post-processed
+% environment (e.g., databases or knowledge bases).
+% This is because
+% populating a database or knowledge base
+% requires manpower
+% or algorithms to extract real-world knowledge
+% and convert it into structured entries,
+% which is a lossy process.
+% Moreover,
+% the resulting data can get out-of-date quickly and
+% is limited by the schema of the environment
+% (unless the schema is expanded iteratively,
+% which can be a tedious process).
+
+\subsection{\Depth: Complexity of the questions}
+\label{sec:intro-depth}
+
+Many QA systems handle questions that only require
+surface form matching or very few steps of reasoning
+to compute the answer.
+For instance,
+the lookup question \nl{Where was Obama born?}
+could be handled by matching the surface form
+to the source documents,
+or by identifying the relevant fields
+\{entity: \emph{Barack Obama}, relation: \emph{place of birth}\}
+for querying a database.
+But occasionally, users will ask questions
+that require multiple non-trivial steps to answer.
+For instance, the question
+\nl{Where was the current US president born?}
+requires identifying the current president
+before retrieving the place of birth,
+and
+\nl{How many presidents were born in New York before Trump?}
+requires even more complex reasoning
+with filtering (\emph{in New York}),
+comparison (\emph{before Trump}), and
+aggregation (\emph{how many}).
+
+We consider two main aspects of question complexity.
+The first is \emph{compositionality}:
+the number of steps of operations involved
+when computing the answer.
+% Note that we consider compositionality in the \emph{action space},
+Note that the question does not need to be long or highly nested
+to make the task compositional.
+% Even single-clause utterance $x$
+% can be compositional if it maps to
+% multiple operations.
+% For example, the command \nl{Send a thank you note to John}
+% might involve multiple actions on a messaging interface
+% if the action space only contains clicking on and typing into
+% interface elements.
+For example, the short question \nl{Obama's aunt}
+can be compositional if we only know how to look up
+the parents, siblings, and gender of each person in the database.
+
+The second aspect
+is the \emph{variety of operations}:
+the number of unique atomic operations
+that can be performed on the knowledge source
+to compute the answer.
+For instance,
+we want a QA system that can
+perform multiple types of reasoning such as
+comparison (e.g., to handle questions containing
+\nl{\dots more than 60 years} or \nl{The oldest \dots}),
+navigation (e.g., \nl{\dots right after Lincoln}),
+aggregation (e.g., \nl{How many \dots}),
+and
+calculation (e.g., \nl{The total \dots} or
+\nl{\dots difference between \dots})
+when computing the answer.
+
+A class of QA systems known as
+\emph{knowledge-based QA} systems
+were designed to tackle such complex questions
+by predicting the steps of reasoning required to compute the answers.
+Examples of knowledge-based QA systems include
+natural language interfaces to databases
+mentioned in the previous section,
+which use database queries to represent the steps of computation;
+and semantic parsers for questions answering
+\cite{zelle96geoquery,zettlemoyer07relaxed,liang11dcs},
+which convert questions into compositional and executable logical forms.
+However, these QA systems traditionally operate on structured knowledge sources
+with a limited domain and a fixed schema,
+such as a domain-specific database.
+And while more recent semantic parsing works
+consider using large knowledge bases
+with information extracted from open-domain sources,
+%such as Freebase \cite{freebase2013dump}, YAGO \cite{suchanek2007yago},
+%or DBPedia \cite{auer2007dbpedia},
+the fixed schema and incompleteness of the knowledge bases
+still limits the types of questions that can be answered.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Thesis outline}
+\section{Increasing \Breadth and \Depth simultaneously}
 
-\section{Summary of contributions}
+As mentioned earlier, the goal of this dissertation is to
+demonstrate QA systems that can handle broader, open-domain
+knowledge sources $w$ as well as more complex questions $x$.
+We now give an overview of our work,
+which involves introducing new QA tasks
+with increased \Breadth and \Depth, and then
+proposing novel algorithms to address the challenges
+introduced by the task settings.
+
+\subsection{New QA tasks with increased \Breadth and \Depth}
+
+To aid our investigation,
+the first few chapters of this dissertation
+propose a series of 
+QA tasks
+% and
+% corresponding
+% machine learning approaches
+to address \Breadth and \Depth \emph{simultaneously}.
+% Our ultimate goal is to demonstrate systems
+% that can answer complex questions $x$
+% using open-domain knowledge sources $w$
+% with unseen data schemata.
+In these tasks,
+we focus on the scope of questions that can be asked
+within the task settings,
+as well as the potential challenges that the QA systems
+will have to address.
+
+\paragraph{\Breadth: Using web pages as the knowledge source.}
+To increase the scope of the knowledge source,
+we focus on using \emph{web pages},
+which form a huge, open-domain, and up-to-date
+repository of information.
+One distinguishing factor of web pages
+is that they are \emph{semi-structured}:
+a web page contains structural constructs
+(e.g., the internal tree representation of the whole page,
+tables, and template-generated product listings),
+but the schemata of such structures are arbitrary
+depending on the whim of the webmaster.
+This lack of a predefined schema
+allows web pages to represent a much 
+wider variety of information
+than a database or
+other fixed-schema knowledge sources.
+At the same time,
+the structural nature of semi-structured data
+makes it appropriate for displaying certain types of information,
+such as a series of objects (e.g., list of national parks)
+and their statistical properties
+(e.g., the location and area of each national park),
+that would be awkward when written out as plain text.
+
+In Chapter~\ref{chp:semi},
+we first explore the semi-structured nature of web pages.
+To aid our investigation, we consider the task of 
+% identifying the HTML element from the description
+% (e.g., \nl{follow on facebook} $\to$ the
+% \raisebox{-.1em}{\includegraphics[height=.9em]{figures/intro/facebook.png}}
+% link)
+extracting a list of entities from the web page
+based on the input question
+(e.g., \nl{(What are) hiking trails near Baltimore}
+$\to$ \{\nl{Avalon Loop}, \nl{Hilton Area}, \dots\}
+extracted from the \emph{Name} column of the table on the page).
+% The first task focuses on identifying HTML elements based on their
+% distinctive properties,
+% while the second task leverages the homogeneous properties
+% of elements in the same series.
+While most input queries we consider are not very complex,
+we end the chapter by highlighting the need
+for compositional reasoning
+in some queries
+(e.g., extracting \nl{tech companies in China}
+requires filtering the cells from the table).
+This chapter is based on our works in
+\citet{pasupat2014extraction}.
+
+\paragraph{\Depth: Answering compositional questions
+on web tables.}
+We turn to addressing question complexity
+by introducing the task
+of answering compositional questions.
+Among different types of structured information
+on web pages,
+we choose \emph{HTML tables}
+as the source of information.
+Our rationale is that tables
+typically contain computable data suitable for
+answering complex questions (high \Depth),
+while at the same time are open-domain
+and contain arbitrary data schemata (high \Breadth).
+
+Chapter~\ref{chp:tables}
+formalizes our task setup
+and explains how we collect
+a dataset of
+compositional questions
+with diverse operations.
+The resulting \wtq dataset
+contains over 20,000 question-answer pairs
+on HTML tables of various topics.
+We then compare the task and the dataset
+to related tasks in terms of \Breadth and \Depth.
+This chapter is based on our work in
+\citet{pasupat2015compositional}.
+
+\subsection{Tackling the increased \Breadth and \Depth}
+
+Using the task of answering complex questions on semi-structured tables
+as a benchmark, we next investigate techniques for handling
+diversified data schemata and compositional reasoning.
+
+\paragraph{Semantic parsing.}
+Chapter~\ref{chp:parsing}
+presents our
+semantic parsing approach for answering
+complex questions on web tables.
+Given a question,
+our parser generates and scores
+executable \emph{logical forms}
+that represent the semantics of the question
+(e.g., parsing \nl{How many presidents were born in Georgia?}
+to the logical form $\T{count}(\xHas{BirthState}.\T{Georgia})$,
+where \T{BirthState} is a table column
+and \T{Georgia} is a table cell).
+Logical forms are compositional, and thus
+are suitable for representing the steps needed
+to compute the answer.
+%
+The parser is trained using the annotated
+answer for each question as a \emph{distant supervision}.
+During training, the parser performs search
+over the space of logical forms,
+and then updates its parameters so that
+the logical forms executing to the correct answer
+are ranked higher than others.
+
+\paragraph{On-the-fly information extraction.}
+As mentioned in Section~\ref{sec:intro-depth},
+semantic parsers traditionally operate on structured data
+with a known schema
+\cite{zelle96geoquery,zettlemoyer07relaxed,liang11dcs}.
+One common technique to utilize open-domain data
+in semantic parsers is to apply \emph{information extraction}
+\cite{hearst1992automatic,kushmerick1997wrapper,banko2007open,mintz2009distant}.
+Given a corpus of unstructured or semi-structured data,
+an information extraction system detects the information
+that satisfies the desired database schema,
+and then populate the database accordingly.
+While this allows open-domain knowledge to be aggregated
+and canonicalized for the downstream QA system,
+the assumed schema of the database
+still limits the type of knowledge that can be extracted.
+
+To tackle this issue, we apply \emph{on-the-fly information extraction}:
+from the web table of interest,
+we create a temporary structured data just for that table.
+In particular,
+we convert the table into a generic graph structure that can
+(1) encode arbitrary table fields as graph edges, and
+(2) encode uncertainty in how text in table cells should be interpreted.
+Logical forms can be executed on the resulting graph,
+and the semantic parser uses information from the graph
+to construct candidate logical forms.
+
+We end Chapter~\ref{chp:parsing} with empirical analyses
+of the dataset and the semantic parser.
+This chapter is based on our work in
+\citet{pasupat2015compositional}.
+
+\subsection{Tackling search problems}
+
+The \wtq dataset we introduced in Chapter~\ref{chp:tables}
+is \emph{distantly supervised}:
+it was annotated with the answers to the questions,
+but not how the answers can be derived.
+While this makes the dataset method-agnostic
+and cheap to collect,
+the training procedure for our method
+now has to search for logical forms
+that execute to the correct answer.
+In the final two chapters,
+we outline the challenges caused by this need to search
+over the large space of logical forms,
+and then provide two orthogonal solutions to the challenges.
+
+\paragraph{Speeding up search.}
+To enable the parser to answer a wider range of questions,
+we could augment the parser with more logical operators
+and constructs for generating logical forms.
+Unfortunately, this expands the space of possible logical forms
+and significantly slows down the search algorithm.
+Chapter~\ref{chp:macro}
+proposes a method to speed up search by using
+the \emph{patterns} of logical forms
+found in previous training examples
+to guide the search for similar examples.
+For example,
+after parsing \nl{How many presidents were born in Georgia?}
+into 
+$\T{count}(\xHas{BirthState}.\T{Georgia})$,
+we reuse the logical form pattern
+$\T{count}(\aHas{\C{Col}\#1}.\A{\C{Cell}\#2})$
+when parsing future questions of the form
+\nl{How many \dots were \dots in \dots?}.
+The resulting speedup allows the model
+to explore more compositional logical forms
+and more diverse logical operators
+in less amount of time.
+This chapter is based on our work in
+\citet{zhang2017macro}.
+
+\paragraph{Precomputing semantically correct logical forms.}
+While using patterns to guide search
+increases the overall efficiency,
+performing search over the logical forms during training
+still poses two other fundamental issues.
+First,
+if the search fails to find any logical form that executes
+to the correct answer,
+the parameters cannot be updated.
+Second,
+the search can generate spurious logical forms
+that execute to the correct answer for wrong reasons
+(e.g., for \nl{How many presidents were born in Georgia?},
+it turns out
+$\T{count}(\xHas{DeathState}.\T{Georgia})$
+also gives the same answer).
+These spurious logical forms become noises that could lead
+the model to learn incorrect associations.
+
+Since distant supervision is the reason
+we need to perform search during training,
+we propose to add \emph{direct supervision} to the dataset
+by augmenting each example with
+semantically correct logical forms.
+Chapter~\ref{chp:dpd}
+presents algorithms
+that,
+given a training example,
+exhaustively
+enumerate logical forms
+that execute to the correct answer,
+and then filter out the spurious logical forms
+using a small amount of human supervision.
+The resulting logical forms can be used to train
+a semantic parser directly
+without having to perform search over logical forms.
+This chapter is based on our work in
+\citet{pasupat2016inferring}.

@@ -1,0 +1,86 @@
+\begin{table}[!p]\centering
+\begin{tabular}{@{\;}lr@{ $\to$ }ll@{}} \toprule
+\multicolumn{3}{c}{\textbf{Rule}} & \textbf{Semantics} \\ \midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Terminal Rules}}} \\
+
+T1 &
+$\C{TokenSpan}$ & $\C{Set}$ & $\mathrm{fuzzymatch}(s)$ \\
+\explainC{cell or cell part fuzzily matching the text: \nl{chinese} $\to$ \T{China}} \\
+
+T2 &
+$\C{TokenSpan}$ & $\C{Set}$ & $\mathrm{value}(s)$ \\
+\explainC{interpreted value: \nl{march 2015} $\to$ \C{2015-03-XX}} \\
+
+T3 &
+$\varnothing$ & $\C{Set}$ & $\T{allRows}$ \\
+
+T4 &
+$\varnothing$ & $\C{Set}$ & $\mathrm{closedClass}()$ \\
+\explainC{entities from a column with few unique entities} \\
+\explainC{e.g., \T{400m} or \T{relay} from the \emph{Event} column} \\
+
+T5 &
+$\varnothing$ & $\C{Rel}$ & $\mathrm{graphEdges}()$ \\
+\explainC{\emph{any} graph edge: \T{Venue}, \T{Index}, \T{Next}, \T{Num2}, \dots} \\
+
+T6 &
+$\varnothing$ & $\C{Rel}$ & $\T{!=} \mid \T{<} \mid \T{<=} \mid \T{>} \mid \T{>=}$ \\
+
+\midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Compositional Rules}}} \\
+
+C1 &
+$\C{Set} + \C{Rel}$ & $\C{Set}$ & $z_2.z_1 \mid \Mb{R}[z_2].z_1$ \\ 
+
+C2 &
+$\C{Set}$ & $\C{Set}$ & $A(z_1)$ \\
+\explainC{$A \in \{\T{count}, \T{max}, \T{min}, \T{sum}, \T{avg}\}$} \\
+
+C3 &
+$\C{Set} + \C{Set}$ & $\C{Set}$ & $z_1 \sqcap z_2 \mid z_1 \sqcup z_2 \mid \T{sub}(z_1, z_2)$ \\
+\explainC{subtraction is only allowed on numbers}  \\
+
+\midrule
+
+\multicolumn{4}{c}{\textbf{\emph{Compositional Rules with Maps}}} \\
+
+\multicolumn{4}{c}{\textbf{Initialization}} \\
+
+M1 &
+$\C{Set}$ & $\C{Map}$ & $(z_1, x)$ \\
+\explainC{identity map} \\
+
+\multicolumn{4}{c}{\textbf{Operations on Map}} \\
+
+M2 &
+$\C{Map} + \C{Rel}$ & $\C{Map}$ & $(u_1, z_2.b_1) \mid (u_1, \Mb{R}[z_2].b_1)$ \\
+\explainC{$(u_1, b_1)$ is the logical form of the \C{Map} argument; $z_2$ is the \C{Rel} argument} \\
+
+M3 &
+$\C{Map}$ & $\C{Map}$ & $(u_1, A(b_1))$ \\
+\explainC{$A \in \{\T{count}, \T{max}, \T{min}, \T{sum}, \T{avg}\}$} \\
+
+M4 &
+$\C{Map} + \C{Set}$ & $\C{Map}$ & $(u_1, b_1 \sqcap z_2) \mid (u_1, b_1 \sqcup z_2) \mid (u_1, \T{sub}(b_1, z_2))$ \\
+M5 &
+$\C{Map} + \C{Map}$ & $\C{Map}$ & $(u_1, b_1 \sqcap b_2) \mid (u_1, b_1 \sqcup b_2) \mid (u_1, \T{sub}(b_1, b_2))$ \\
+\explainC{Rule M5 is allowed only when $u_1 = u_2$} \\
+
+\multicolumn{4}{c}{\textbf{Finalization}} \\
+
+M6 &
+$\C{Map}$ & $\C{Set}$ & $\T{argmin}(u_1, \lambda x[b_1]) \mid \T{argmax}(u_1, \lambda x[b_1])$ \\
+
+\bottomrule
+
+\end{tabular}
+\caption[Generic deduction rules.]{
+Our new set of generic deduction rules.
+The logical form of the $i$-th argument is denoted by $z_i$
+(or $(u_i, b_i)$ if the argument is a \C{Map}).
+The set of final logical forms contains any logical form
+with category \C{Set}.
+}\label{tab:dpd-rules}
+\end{table}

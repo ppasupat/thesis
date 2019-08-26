@@ -1,0 +1,34 @@
+\input{figures/wtq/running-ex.tex} \\[.5em]
+$x = \text{\nl{The last 1st place finish is in which year?}}$ \\
+$z = \xOf{Num}.\xOf{Year}.\T{argmax}(\T{allRows}, \lambda r[\xOf{Index}. r])$ \\
+$y = \{\C{2008}\}$
+(type: \Sc{Num}, column: \T{Year}) \\[.5em]
+\begin{tabular}{ll} \toprule
+\textbf{Feature Name} & \textbf{Note} \\ \midrule
+\textbf{phrase-predicate} \\
+$\text{phrase} = \text{\nl{last}}, \text{predicate} = \T{argmax}$
+& lexicalized \\
+$\text{phrase} = \text{predicate}, \text{type} = \text{relation}$
+& unlexicalized ($\because \text{\nl{year}} = \T{Year}$) \\
+\midrule
+\textbf{missing-predicate} \\
+missing entity & unlexicalized ($\because$ missing \nl{1st}) \\
+\midrule
+\textbf{denotation} \\
+$\text{denotation type} = \Sc{Num}$ \\
+$\text{denotation column} = \Sc{Year}$ \\
+\midrule
+\textbf{phrase-denotation} \\
+$\text{phrase} = \text{\nl{which year}}, \text{denotation type} = \Sc{Num}$
+& lexicalized \\
+$\text{phrase} = \text{denotation column}$
+& unlexicalized ($\because \C{``year''} = \T{Year}$) \\
+\midrule
+\textbf{headword-denotation} \\
+$Q = \text{\nl{which}}, \text{denotation type} = \Sc{Num}$
+& lexicalized \\
+$H = \text{\nl{year}}, \text{denotation type} = \Sc{Num}$
+& lexicalized \\
+$H = \text{denotation column}$ & unlexicalized ($\because \text{\nl{year}} = \T{Year}$) \\
+\bottomrule
+\end{tabular}

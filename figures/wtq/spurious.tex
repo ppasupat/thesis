@@ -1,0 +1,51 @@
+\input{figures/wtq/running-ex.tex}
+\begin{tabular}{r@{\; }l}
+$x$: & \nl{Where did the last 1st place finish occur?} \\
+$y$: & Thailand \\
+\end{tabular}
+\\[0.5em]
+%
+\begin{tabular}{r@{\; }l} \toprule
+\addlinespace
+
+\multicolumn{2}{c}{\textbf{Consistent and semantically correct}} \\
+\addlinespace
+
+$z_1$: & {$\xOf{Venue}.\T{argmax}(\xHas{Position}.\T{1st}, \lambda r[\xOf{Index}.r])$} \\
+\explainD{Among the rows with \emph{Position} = 1st, pick the one with maximum index and return its \emph{Venue}.} \\
+\addlinespace
+
+$z_2$: & {$\xOf{Venue}.\xHas{Index}.\T{max}(\xOf{Index}.\xHas{Position}.\T{1st})$} \\
+\explainD{Find the maximum index of rows with \emph{Position} = 1st. Return the \emph{Venue} of the row with that index.} \\
+\addlinespace
+
+$z_3$: & {$\xOf{Venue}.\T{argmax}(\xHas{Position}.\xHas{Num}.\C{1}, \lambda r[\xOf{Date}.\xOf{Year}.r])$} \\
+\explainD{Among the rows with \emph{Position} number 1, pick the one with the largest \emph{Year}. Return its \emph{Venue}.} \\
+\addlinespace
+
+\midrule
+\addlinespace
+
+\multicolumn{2}{c}{\textbf{Consistent but spurious}} \\
+\addlinespace
+
+$z_4$: & {$\xOf{Venue}.\T{argmax}(\xHas{Position}.\xHas{Num}.\C{1}, \lambda r[\xOf{Num}.\xOf{Time}.r])$} \\
+\explainD{Among the rows with \emph{Position} number 1, pick the one with the largest \emph{Time}. Return its \emph{Venue}.} \\
+\addlinespace
+
+$z_5$: & {$\xOf{Venue}.\xHas{Year}.\xHas{Num}.\T{sub}(\xOf{Num}.\xOf{Year}.\T{argmax}(\T{allRows}, \lambda r[\xOf{Index}.r]), \C{1})$} \\
+\explainD{Subtract 1 from the \emph{Year} in the last row, then return the \emph{Venue} of the row with that \emph{Year}.} \\
+\addlinespace
+
+\midrule
+\addlinespace
+
+\multicolumn{2}{c}{\textbf{Inconsistent}} \\
+\addlinespace
+
+$\tilde z$: & {$\xOf{Venue}.\T{argmin}(\xHas{Position}.\T{1st}, \lambda r[\xOf{Index}.r]) \qquad \to \deno{\tilde z}{w} = \set{\T{Finland}}$} \\
+\explainD{Among the rows with \emph{Position} = 1st, pick the one with minimum index and return its \emph{Venue}.} \\
+\addlinespace
+
+\bottomrule
+\end{tabular}
